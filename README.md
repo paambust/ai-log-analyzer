@@ -726,8 +726,5 @@ For issues or questions:
 
 ---
 
-## License
-
-MIT License (or your chosen license)
 
 **Last Updated:** April 2026
