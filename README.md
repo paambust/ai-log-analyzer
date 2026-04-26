@@ -74,11 +74,12 @@ A containerized microservices application for collecting, storing, and analyzing
 
 #### 3. **Worker Service** (Python)
 - Runs continuously as a background process
-- Polls the database every 5 seconds for unanalyzed logs
+- Polls the database every 10 seconds for unanalyzed logs
 - Fetches up to 5 logs at a time (batch processing)
-- Generates AI-powered analysis for each log
+- Calls **Ollama LLM** (tinyllama) for AI-powered analysis
+- Generates structured analysis with root cause, severity, and recommendations
 - Updates the database with analysis results
-- Technology: psycopg2 + requests
+- Technology: psycopg2 + requests + Ollama API
 
 ---
 
@@ -145,6 +146,58 @@ NAME              STATUS              PORTS
 postgres          Up X seconds        0.0.0.0:5432->5432/tcp
 api-service       Up X seconds        0.0.0.0:8000->8000/tcp
 worker-service    Up X seconds        (no ports)
+```
+
+---
+
+## Quick Start
+
+### 1. Start Ollama (One-time Setup)
+
+```bash
+# Install Ollama (if not already installed)
+curl -fsSL https://ollama.com/install.sh | sh
+
+# Download the model (one-time)
+ollama pull tinyllama
+
+# Start Ollama server
+OLLAMA_HOST=0.0.0.0:11434 ollama serve
+```
+
+### 2. Start Docker Services
+
+```bash
+cd ai-log-analyzer
+sudo docker-compose up -d --build
+```
+
+### 3. Send a Test Log
+
+```bash
+curl -X POST http://localhost:8000/logs \
+  -H "Content-Type: application/json" \
+  -d '{
+    "service": "my-service",
+    "level": "ERROR",
+    "message": "Database connection timeout after 30 seconds"
+  }'
+```
+
+### 4. View Results
+
+**Option A: JSON API (5-30 seconds for LLM to respond)**
+```bash
+sleep 20  # Wait for worker to process
+curl http://localhost:8000/logs?analyzed=true | jq '.logs[0].analysis'
+```
+
+**Option B: Visual Dashboard**
+Open in browser: `http://localhost:8000/dashboard`
+
+**Option C: Watch Worker Logs**
+```bash
+sudo docker-compose logs -f worker
 ```
 
 ---
@@ -286,6 +339,79 @@ curl -X POST http://localhost:8000/logs \
 
 ---
 
+#### 3. Retrieve Logs with Analysis
+
+**Endpoint:** `GET /logs`
+
+**Purpose:** Retrieve stored logs with optional filtering by analysis status.
+
+**Query Parameters:**
+- `analyzed` (boolean, optional): Filter by analysis status (true/false)
+- `limit` (integer, optional): Max results to return (default: 10)
+
+**Response:**
+```json
+{
+    "logs": [
+        {
+            "id": 1,
+            "service": "database-service",
+            "level": "ERROR",
+            "message": "Connection pool exhausted: 50/50 connections active",
+            "analyzed": true,
+            "analysis": "Issue Summary: Database connection exhaustion...",
+            "created_at": "2026-04-26 14:33:21.882510"
+        }
+    ]
+}
+```
+
+**Examples:**
+```bash
+# Get last 10 logs (all statuses)
+curl http://localhost:8000/logs
+
+# Get only analyzed logs
+curl "http://localhost:8000/logs?analyzed=true"
+
+# Get only unanalyzed logs
+curl "http://localhost:8000/logs?analyzed=false"
+
+# Get last 5 analyzed logs
+curl "http://localhost:8000/logs?analyzed=true&limit=5"
+
+# Format JSON output
+curl http://localhost:8000/logs?analyzed=true | jq '.logs[0]'
+```
+
+---
+
+#### 4. Visual Dashboard
+
+**Endpoint:** `GET /dashboard`
+
+**Purpose:** Browse logs and analysis results in an interactive HTML dashboard.
+
+**Features:**
+- Dark-themed UI with responsive design
+- Displays analyzed logs with full AI analysis
+- Shows logs being processed in real-time
+- Auto-refreshes every 10 seconds
+- Color-coded log levels (ERROR, WARNING, INFO, etc.)
+- Service badges for easy filtering
+
+**Access:**
+```
+http://localhost:8000/dashboard
+```
+
+**Screenshot:**
+- Green cards: Completed analyses with LLM insights
+- Orange cards: Logs currently being analyzed by worker
+- Real-time updates without manual refresh
+
+---
+
 ### API Implementation Details
 
 **File:** `api/main.py`
@@ -301,7 +427,7 @@ curl -X POST http://localhost:8000/logs \
 
 ### Overview
 
-The Worker Service is a long-running background process that performs asynchronous log analysis.
+The Worker Service is a long-running background process that performs asynchronous log analysis using a local LLM (Ollama).
 
 **File:** `worker/worker.py`
 
@@ -309,11 +435,12 @@ The Worker Service is a long-running background process that performs asynchrono
 
 ```
 1. Connect to PostgreSQL database
-2. Poll every 5 seconds for unanalyzed logs (LIMIT 5)
+2. Poll every 10 seconds for unanalyzed logs (LIMIT 5)
 3. For each log:
-   - Extract log ID and message
-   - Call LLM API for analysis (placeholder in current code)
-   - Generate analysis insight
+   - Extract log ID, service, level, and message
+   - Call Ollama LLM (tinyllama) API with structured prompt
+   - Receive AI-generated analysis with root cause, severity, actions
+   - Format analysis into readable format
 4. Update logs table:
    - Set analyzed = TRUE
    - Store analysis result
@@ -324,34 +451,76 @@ The Worker Service is a long-running background process that performs asynchrono
 
 ```python
 # Polling frequency
-time.sleep(5)  # Checks database every 5 seconds
+time.sleep(10)  # Checks database every 10 seconds
 
 # Batch size
 LIMIT 5  # Processes up to 5 logs per cycle
 
-# Analysis (placeholder)
-analysis = f"Possible issue detected: {message}"
+# LLM Integration
+# Calls: POST http://OLLAMA_HOST:11434/api/generate
+# Model: tinyllama
+# Response: Structured analysis with 5 sections
+```
+
+### LLM Analysis Structure
+
+The worker generates analysis with:
+
+1. **Issue Summary** - What problem does the log indicate?
+2. **Root Cause Analysis** - What likely caused this?
+3. **Severity Rating** - CRITICAL | HIGH | MEDIUM | LOW
+4. **Immediate Actions** - What should be done right now? (bullet points)
+5. **Long-term Prevention** - How to prevent recurring? (bullet points)
+
+### Ollama Setup
+
+The worker connects to Ollama running on the local machine.
+
+**Install Ollama:**
+```bash
+# macOS / Linux
+curl -fsSL https://ollama.com/install.sh | sh
+
+# Or download from: https://ollama.com/download
+```
+
+**Pull Tinyllama Model:**
+```bash
+ollama pull tinyllama
+```
+
+**Start Ollama Server:**
+```bash
+# Default port: 11434
+OLLAMA_HOST=0.0.0.0:11434 ollama serve
+```
+
+**Verify Connection:**
+```bash
+curl http://localhost:11434/api/generate \
+  -X POST \
+  -d '{
+    "model": "tinyllama",
+    "prompt": "Hello",
+    "stream": false
+  }'
 ```
 
 ### Production Considerations
 
-1. **LLM Integration**: Replace placeholder with actual LLM API calls
-   ```python
-   import requests
-   
-   response = requests.post(
-       f"{os.getenv('LLM_ENDPOINT')}/chat/completions",
-       headers={"Authorization": f"Bearer {os.getenv('LLM_API_KEY')}"},
-       json={"messages": [{"role": "user", "content": f"Analyze: {message}"}]}
-   )
-   analysis = response.json()["choices"][0]["message"]["content"]
-   ```
+1. **Alternative LLM Services:**
+   - OpenAI (GPT-4, GPT-3.5-turbo)
+   - Azure OpenAI
+   - Anthropic Claude
+   - Local models via llama.cpp
 
-2. **Error Handling**: Add try-catch for network/API failures
+2. **Error Handling:** Already implemented with try-catch blocks
 
-3. **Logging**: Implement structured logging for debugging
+3. **Logging:** Add structured logging for debugging
 
-4. **Scaling**: Add multiple worker instances for higher throughput
+4. **Scaling:** Run multiple worker instances for higher throughput
+
+5. **Timeout Management:** Currently 60 seconds per LLM call
 
 ---
 
@@ -370,11 +539,33 @@ environment:
   DB_NAME: logsdb           # Database name
 ```
 
+### Ollama Integration
+
+The worker requires Ollama running on your local machine (not in Docker).
+
+**Environment Setup:**
+```bash
+# Start Ollama on the host machine
+OLLAMA_HOST=0.0.0.0:11434 ollama serve &
+
+# Verify it's accessible
+curl http://localhost:11434/api/generate -X POST -d '{"model":"tinyllama","prompt":"test","stream":false}'
+```
+
+**Worker Configuration:**
+- **Ollama Host:** `http://192.168.0.3:11434` (update with your IP)
+- **Model:** `tinyllama`
+- **Temperature:** 0.3 (deterministic output)
+- **Timeout:** 60 seconds per request
+
 ### Service-Specific Variables
 
 **Worker Service:**
 ```yaml
-LLM_API_KEY: your_key_here  # API key for LLM service
+# No API key needed for local Ollama
+# For cloud LLMs, configure:
+LLM_API_KEY: your_api_key_here
+LLM_ENDPOINT: https://api.openai.com/v1  # For OpenAI, etc.
 ```
 
 ### Changing Credentials
@@ -402,6 +593,18 @@ To change database credentials:
 
 ## Running the Application
 
+### Prerequisites: Start Ollama
+
+Before starting Docker containers, start Ollama on your host machine:
+
+```bash
+# Terminal 1: Start Ollama server
+OLLAMA_HOST=0.0.0.0:11434 ollama serve
+
+# Terminal 2: Verify Ollama is running
+curl http://localhost:11434/api/generate -X POST -d '{"model":"tinyllama","prompt":"test","stream":false}'
+```
+
 ### Start All Services
 
 ```bash
@@ -410,6 +613,40 @@ sudo docker-compose up -d --build
 
 # View logs
 sudo docker-compose logs -f
+
+# View specific service logs
+sudo docker-compose logs -f api
+sudo docker-compose logs -f worker
+sudo docker-compose logs -f postgres
+```
+
+### Test the System
+
+**1. Send a test log:**
+```bash
+curl -X POST http://localhost:8000/logs \
+  -H "Content-Type: application/json" \
+  -d '{
+    "service": "auth-service",
+    "level": "ERROR",
+    "message": "Database connection timeout after 30 seconds"
+  }'
+```
+
+**2. Watch worker analyze (in real-time):**
+```bash
+sudo docker-compose logs -f worker
+```
+
+**3. Check results via API:**
+```bash
+# Wait 20-30 seconds for LLM to process
+curl http://localhost:8000/logs?analyzed=true | jq '.logs[0]'
+```
+
+**4. View in browser dashboard:**
+```
+http://localhost:8000/dashboard
 ```
 
 ### Stop All Services
@@ -421,7 +658,7 @@ sudo docker-compose down
 ### Remove All Data and Containers
 
 ```bash
-# Stop and remove containers, volumes
+# Stop and remove containers, volumes, data
 sudo docker-compose down -v
 
 # This will delete the pgdata volume!
@@ -430,17 +667,17 @@ sudo docker-compose down -v
 ### View Individual Service Logs
 
 ```bash
-# API service logs
-sudo docker-compose logs api
+# API service logs (with timestamps)
+sudo docker-compose logs api --timestamps
 
-# Worker service logs
-sudo docker-compose logs worker
+# Worker service logs (real-time)
+sudo docker-compose logs -f worker
 
 # Database logs
 sudo docker-compose logs postgres
 
-# Live logs with tail
-sudo docker-compose logs -f api
+# Follow API logs with tail
+sudo docker-compose logs -f api --tail 50
 ```
 
 ### Access PostgreSQL Directly
@@ -462,6 +699,7 @@ psql -U admin -d logsdb
 SELECT * FROM logs;
 SELECT * FROM logs WHERE analyzed = FALSE;
 SELECT * FROM logs WHERE level = 'ERROR';
+SELECT id, service, level, short_message FROM logs LIMIT 5;
 
 # Exit
 \q
@@ -528,27 +766,84 @@ Edit `api/main.py`:
 ```python
 @app.get("/logs/count")
 def count_logs():
+    """Get total count of logs"""
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("SELECT COUNT(*) FROM logs")
     count = cur.fetchone()[0]
     cur.close()
     conn.close()
-    return {"total_logs": count}
+    return {"total_logs": count, "analyzed": True}
+
+@app.get("/logs/stats")
+def log_stats():
+    """Get statistics about logs"""
+    conn = get_conn()
+    cur = conn.cursor()
+    
+    cur.execute("""
+        SELECT 
+            COUNT(*) as total,
+            SUM(CASE WHEN analyzed = true THEN 1 ELSE 0 END) as analyzed_count,
+            COUNT(DISTINCT service) as unique_services
+        FROM logs
+    """)
+    
+    total, analyzed, services = cur.fetchone()
+    cur.close()
+    conn.close()
+    
+    return {
+        "total_logs": total,
+        "analyzed_logs": analyzed,
+        "unique_services": services,
+        "pending": total - (analyzed or 0)
+    }
 ```
 
 ### Modifying Worker Logic
 
 Edit `worker/worker.py`:
 
-Change polling frequency:
+**Change polling frequency:**
 ```python
-time.sleep(10)  # Poll every 10 seconds instead of 5
+time.sleep(20)  # Poll every 20 seconds instead of 10
 ```
 
-Change batch size:
+**Change batch size:**
 ```python
-cur.execute("SELECT id, message FROM logs WHERE analyzed = false LIMIT 10")
+cur.execute("SELECT id, service, level, message FROM logs WHERE analyzed = false LIMIT 10")
+```
+
+**Switch LLM model:**
+```python
+# In analyze_log_with_llm function:
+"model": "mistral",  # or any other Ollama model
+```
+
+**Adjust LLM parameters:**
+```python
+json={
+    "model": "tinyllama",
+    "prompt": prompt,
+    "stream": False,
+    "temperature": 0.7,  # More creative (0.0-1.0)
+    "top_k": 50,         # Consider top 50 tokens
+    "top_p": 0.95        # Consider 95% probability mass
+}
+```
+
+### Testing the LLM Locally
+
+```bash
+# Test Ollama directly
+curl http://localhost:11434/api/generate \
+  -X POST \
+  -d '{
+    "model": "tinyllama",
+    "prompt": "Analyze this error: Connection timeout after 30 seconds",
+    "stream": false
+  }' | jq '.response'
 ```
 
 ---
@@ -613,29 +908,80 @@ sudo docker-compose logs postgres
 
 ---
 
-### Issue: Worker Service Not Processing Logs
+### Issue: Worker Not Calling LLM / Analysis Says "LLM failed"
 
-**Debugging:**
+**Errors:**
+- `"analysis": "LLM failed: name 'analyze_log_with_llm' is not defined"`
+- `"LLM error: Connection refused"`
+- `"Failed to call LLM: [Errno 111] Connection refused"`
 
-1. Check if worker is running:
+**Causes:**
+1. Ollama not running on host machine
+2. Ollama port not accessible from Docker containers
+3. Wrong Ollama IP address in worker code
+4. tinyllama model not downloaded
+
+**Solutions:**
+
+1. **Start Ollama on host:**
    ```bash
-   sudo docker-compose ps worker-service
+   OLLAMA_HOST=0.0.0.0:11434 ollama serve
    ```
 
-2. View worker logs:
+2. **Verify Ollama is accessible:**
    ```bash
-   sudo docker-compose logs -f worker
+   # From your machine
+   curl http://localhost:11434/api/generate -X POST -d '{"model":"tinyllama","prompt":"test","stream":false}'
+   
+   # From inside Docker container
+   sudo docker exec api-service curl http://host.docker.internal:11434/api/generate -X POST -d '{"model":"tinyllama","prompt":"test","stream":false}'
    ```
 
-3. Verify logs table exists:
+3. **Check tinyllama is downloaded:**
    ```bash
-   sudo docker exec -it postgres psql -U admin -d logsdb -c "\dt"
+   ollama list
+   # Should show: tinyllama:latest
+   
+   # If not, download:
+   ollama pull tinyllama
    ```
 
-4. Check for unanalyzed logs:
+4. **Update Ollama IP in worker.py:**
+   - Find: `http://192.168.0.3:11434`
+   - Replace with your machine's IP address
+
+---
+
+### Issue: Slow LLM Analysis / Timeout After 60 Seconds
+
+**Error:** `"analysis": "Failed to call LLM: timed out"`
+
+**Causes:**
+1. tinyllama is too slow (expected for CPU-only)
+2. Many logs queued up
+3. Network latency
+
+**Solutions:**
+
+1. **Use faster model:**
    ```bash
-   sudo docker exec -it postgres psql -U admin -d logsdb \
-     -c "SELECT COUNT(*) FROM logs WHERE analyzed = FALSE;"
+   # Pull a smaller model
+   ollama pull phi  # Faster
+   
+   # Update worker.py
+   "model": "phi"
+   ```
+
+2. **Increase timeout:**
+   ```python
+   # In worker.py, increase from 60 to 120 seconds
+   timeout=120
+   ```
+
+3. **Reduce batch size:**
+   ```python
+   # Process fewer logs at once
+   LIMIT 2  # Instead of 5
    ```
 
 ---
@@ -705,15 +1051,22 @@ The current setup uses:
 
 ## Future Enhancements
 
-- [ ] Real LLM integration (OpenAI, Azure OpenAI, etc.)
+- [x] Real LLM integration (Ollama - Local LLM support)
+- [ ] Cloud LLM options (OpenAI, Azure OpenAI, Anthropic)
 - [ ] API authentication and rate limiting
 - [ ] Advanced filtering and search endpoints
-- [ ] Dashboard UI for log visualization
+- [ ] Dashboard UI improvements
+  - [ ] Real-time WebSocket updates (instead of refresh)
+  - [ ] Export logs as CSV/JSON
+  - [ ] Charts and analytics
 - [ ] Alert system for critical logs
-- [ ] Log retention policies
-- [ ] Metrics and monitoring (Prometheus)
+- [ ] Log retention policies with automatic cleanup
+- [ ] Metrics and monitoring (Prometheus, Grafana)
 - [ ] Horizontal scaling with Kubernetes
 - [ ] Database backups and recovery
+- [ ] Multi-user support with role-based access
+- [ ] Custom prompts per service
+- [ ] Analysis caching to reduce LLM calls
 
 ---
 
@@ -728,3 +1081,70 @@ For issues or questions:
 
 
 **Last Updated:** April 2026
+
+** Integrate with Local LLM models
+
+```
+curl -X POST http://localhost:8000/logs \
+  -H "Content-Type: application/json" \
+  -d '{
+    "service": "auth-service",
+    "level": "ERROR",
+    "message": "Database connection refused on 5432 after 3 retries"
+  }'
+
+curl -fsSL https://ollama.com/install.sh | sh
+ollama version
+ollama --version
+OLLAMA_HOST=0.0.0.0:11434 nohup ollama serve > ollama.log 2>&1 &
+curl http://127.0.0.1:11434
+ollama --version
+ollama pull tinyllama
+ollama run tinyllama
+>>> Explain database timeout error
+A database timeout error is a problem that occurs when the server or the application attempting to access the database is unable to establish a 
+connection within a predefined timeframe. The term "timeout" refers to the amount of time an application has to wait for a response from the database 
+server before giving up and trying another connection.
+
+There are several possible causes for a timeout error, including:
+
+1. Connection issues: If the connection between your application and the database is broken or inaccessible due to network issues or technical problems, 
+this can cause a timeout. You can check the logs on the server or application to see if any errors have been logged, or try restarting the system or 
+application.
+
+2. Security concerns: Some databases implement strong security measures that may require you to authenticate your requests before they are allowed to be 
+processed. If you've configured your web application or database user account to use a weak password or have accidentally left it blank, this can result 
+in a timeout error.
+
+3. Slow-moving traffic: If the data being accessed by your application is large and is being pulled from an inefficient source, this can cause a timeout. 
+You can try optimizing your web server configuration to reduce network traffic or consider using a different database if you need to process larger 
+datasets.
+
+4. Insufficient resources: A database may be running out of resources (such as memory) and/or have insufficient disk space, which can result in timeout 
+errors. You should monitor your database's usage and make sure you have enough resources available for it to run efficiently.
+
+If you are still experiencing a timeout error despite the above troubleshooting steps, you may need to contact your database vendor or IT department for 
+further assistance. They may have additional suggestions or recommendations for resolving this problem.
+
+Generate error logs
+
+ curl http://localhost:11434/api/generate -d '{
+  "model": "tinyllama",
+  "prompt": "Explain DB timeout error",
+  "stream": false
+}'
+
+curl -X POST http://localhost:8000/logs   -H "Content-Type: application/json"   -d '{
+    "service": "cache-service",
+    "level": "ERROR",
+    "message": "Redis connection timeout: no response after 30 seconds, possible network partition"
+  }'
+
+
+
+curl http://192.168.0.3:11434/api/generate -d '{
+  "model": "tinyllama",
+  "prompt": "Explain DB timeout error",
+  "stream": false
+}'
+```
