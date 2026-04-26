@@ -1,6 +1,8 @@
 import time
 import psycopg2
 import os
+import requests
+
 
 def get_conn():
     return psycopg2.connect(
@@ -11,18 +13,70 @@ def get_conn():
         dbname=os.getenv("DB_NAME")
     )
 
+
+def analyze_log_with_llm(service, level, message):
+    prompt = f"""You are a senior DevOps/SRE engineer with expertise in system troubleshooting.
+
+Analyze the following production log entry and provide actionable insights:
+
+**Service:** {service}
+**Severity Level:** {level}
+**Log Message:** {message}
+
+Please provide a structured analysis with:
+
+1. **Issue Summary** (1-2 sentences): What problem does this log indicate?
+2. **Root Cause Analysis** (brief): What likely caused this? 
+3. **Severity Rating** (select one): CRITICAL | HIGH | MEDIUM | LOW
+4. **Immediate Actions** (1-3 bullet points): What should be done right now?
+5. **Long-term Prevention** (1-2 bullet points): How to prevent this recurring?
+
+Be concise but specific. Focus on actionable items."""
+
+    try:
+        response = requests.post(
+            "http://192.168.0.3:11434/api/generate",
+            json={
+                "model": "tinyllama",
+                "prompt": prompt,
+                "stream": False,
+                "temperature": 0.3,
+                "top_k": 40,
+                "top_p": 0.9
+            },
+            timeout=60
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            return data.get("response", "No response from LLM")
+        else:
+            return f"LLM error: {response.status_code}"
+    except Exception as e:
+        return f"Failed to call LLM: {str(e)}"
+
+
 while True:
     conn = get_conn()
     cur = conn.cursor()
 
-    cur.execute("SELECT id, message FROM logs WHERE analyzed = false LIMIT 5")
+    # Only analyze ERROR logs (cost control)
+    cur.execute("""
+        SELECT id, service, level, message 
+        FROM logs 
+        WHERE analyzed = false
+        LIMIT 5
+    """)
+
     rows = cur.fetchall()
 
     for row in rows:
-        log_id, message = row
+        log_id, service, level, message = row
 
-        # fake LLM response (replace later)
-        analysis = f"Possible issue detected: {message}"
+        try:
+            analysis = analyze_log_with_llm(service, level, message)
+        except Exception as e:
+            analysis = f"LLM failed: {str(e)}"
 
         cur.execute(
             "UPDATE logs SET analyzed=true, analysis=%s WHERE id=%s",
@@ -33,4 +87,4 @@ while True:
     cur.close()
     conn.close()
 
-    time.sleep(5)
+    time.sleep(10)
