@@ -4,14 +4,24 @@ import os
 import requests
 
 
-def get_conn():
-    return psycopg2.connect(
-        host=os.getenv("DB_HOST"),
-        port=os.getenv("DB_PORT"),
-        user=os.getenv("DB_USER"),
-        password=os.getenv("DB_PASSWORD"),
-        dbname=os.getenv("DB_NAME")
-    )
+def get_conn(max_retries=5, retry_delay=2):
+    """Connect to database with retry logic"""
+    for attempt in range(max_retries):
+        try:
+            return psycopg2.connect(
+                host=os.getenv("DB_HOST"),
+                port=int(os.getenv("DB_PORT", 5432)),
+                user=os.getenv("DB_USER"),
+                password=os.getenv("DB_PASSWORD"),
+                dbname=os.getenv("DB_NAME")
+            )
+        except psycopg2.OperationalError as e:
+            if attempt < max_retries - 1:
+                print(f"Connection attempt {attempt + 1} failed. Retrying in {retry_delay}s...")
+                time.sleep(retry_delay)
+            else:
+                print(f"Failed to connect after {max_retries} attempts")
+                raise
 
 
 def analyze_log_with_llm(service, level, message):
