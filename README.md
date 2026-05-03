@@ -27,6 +27,8 @@ A containerized microservices application for collecting, storing, and analyzing
 3. **Analyze logs** asynchronously using LLM (Language Model) to generate insights
 4. **Track analysis status** and store results for later retrieval
 
+![alt text](image.png)
+
 ### Key Features
 
 - **RESTful API** for log ingestion
