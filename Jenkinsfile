@@ -106,8 +106,8 @@ pipeline {
                 sh '''
                     cd ${WORKSPACE_ROOT}
                     # Install test dependencies
-                    echo "Installing test dependencies..."
-                    pip install -r tests/requirements.txt --quiet
+                    # echo "Installing test dependencies..."
+                    # pip install -r tests/requirements.txt --quiet
                     
                     # Run integration tests
                     echo "Running integration tests..."
