@@ -21,6 +21,8 @@ pipeline {
             steps {
                 echo "Checking dependencies..."
                 sh '''
+                    set -e
+                    
                     # Python3 and pip should already be installed in the container
                     echo "✓ Checking Python3..."
                     python3 --version
@@ -28,28 +30,31 @@ pipeline {
                     echo "✓ Checking pip..."
                     pip3 --version || pip --version
                     
-                    # Check Docker (required for this pipeline)
-                    if ! command -v docker &> /dev/null; then
-                        echo "❌ ERROR: Docker not found in container"
-                        echo "Solution: Docker must be installed in Jenkins container"
+                    # Check Docker using direct path
+                    echo "✓ Checking Docker..."
+                    if [ ! -x "/usr/bin/docker" ]; then
+                        echo "❌ ERROR: Docker not found at /usr/bin/docker"
                         exit 1
                     fi
-                    echo "✓ Docker available"
-                    docker --version
+                    /usr/bin/docker --version
                     
                     # Check docker-compose
-                    if command -v docker-compose &> /dev/null; then
-                        echo "✓ docker-compose v1 available"
+                    echo "✓ Checking docker-compose..."
+                    if [ -x "/usr/local/bin/docker-compose" ]; then
+                        /usr/local/bin/docker-compose --version
+                    elif [ -x "/usr/bin/docker-compose" ]; then
+                        /usr/bin/docker-compose --version
+                    elif command -v docker-compose &> /dev/null; then
                         docker-compose --version
                     elif docker compose version &> /dev/null; then
-                        echo "✓ Docker Compose v2 available"
+                        echo "✓ Docker Compose v2"
                         docker compose version
                     else
                         echo "⚠ docker-compose not found, installing..."
                         curl -L "https://github.com/docker/compose/releases/download/v2.20.0/docker-compose-$(uname -s)-$(uname -m)" \
                             -o /usr/local/bin/docker-compose 2>/dev/null
                         chmod +x /usr/local/bin/docker-compose
-                        docker-compose --version
+                        /usr/local/bin/docker-compose --version
                     fi
                     
                     echo "✓ All dependencies verified"
