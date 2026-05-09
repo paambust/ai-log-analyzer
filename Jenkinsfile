@@ -21,25 +21,17 @@ pipeline {
             steps {
                 echo "Checking dependencies..."
                 sh '''
-                    # Install Python3 and pip if missing
-                    if ! command -v python3 &> /dev/null; then
-                        echo "⚠ Python3 not found, installing..."
-                        apt-get update && apt-get install -y python3 python3-pip
-                    fi
-                    
-                    if ! command -v pip &> /dev/null; then
-                        echo "⚠ pip not found, installing..."
-                        apt-get update && apt-get install -y python3-pip
-                    fi
-                    
-                    echo "✓ Python and pip available"
+                    # Python3 and pip should already be installed in the container
+                    echo "✓ Checking Python3..."
                     python3 --version
-                    pip --version
                     
-                    # Check Docker
+                    echo "✓ Checking pip..."
+                    pip3 --version || pip --version
+                    
+                    # Check Docker (required for this pipeline)
                     if ! command -v docker &> /dev/null; then
                         echo "❌ ERROR: Docker not found in container"
-                        echo "Solution: Install Docker in Jenkins container"
+                        echo "Solution: Docker must be installed in Jenkins container"
                         exit 1
                     fi
                     echo "✓ Docker available"
@@ -60,7 +52,7 @@ pipeline {
                         docker-compose --version
                     fi
                     
-                    echo "✓ All dependencies available"
+                    echo "✓ All dependencies verified"
                 '''
             }
         }

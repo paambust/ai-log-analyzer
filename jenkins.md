@@ -16,8 +16,11 @@ http://localhost:8080
   jenkins/jenkins:lts
 
 
-username/password : admin/admin
 
 # The first home page of Jenkins
 
 ![alt text](image-2.png)
+
+
+# The first automated test iteration from Jenkins for the repository on Github
+![alt text](image-3.png)
