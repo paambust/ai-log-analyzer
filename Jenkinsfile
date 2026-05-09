@@ -18,6 +18,34 @@ pipeline {
     }
 
     stages {
+        stage('Setup') {
+            steps {
+                echo "Checking dependencies..."
+                sh '''
+                    # Ensure docker-compose is available
+                    if ! command -v docker-compose &> /dev/null && command -v docker &> /dev/null; then
+                        echo "docker-compose not found, checking for docker compose v2..."
+                        if docker compose version &> /dev/null; then
+                            echo "✓ Docker Compose V2 available"
+                            # Create alias for compatibility
+                            alias docker-compose="docker compose"
+                        else
+                            echo "⚠ Installing docker-compose..."
+                            curl -L "https://github.com/docker/compose/releases/download/v2.20.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose 2>/dev/null
+                            chmod +x /usr/local/bin/docker-compose
+                            docker-compose --version
+                        fi
+                    else
+                        echo "✓ docker-compose available"
+                        docker-compose --version
+                    fi
+                    
+                    # Verify docker
+                    docker --version
+                '''
+            }
+        }
+
         stage('Checkout') {
             steps {
                 echo "Checking out repository..."
@@ -31,7 +59,12 @@ pipeline {
                 echo "Building Docker images from docker-compose..."
                 sh '''
                     cd ${WORKSPACE_ROOT}
-                    docker-compose build --no-cache
+                    # Try docker-compose first, fall back to docker compose (v2)
+                    if command -v docker-compose &> /dev/null; then
+                        docker-compose build --no-cache
+                    else
+                        docker compose build --no-cache
+                    fi
                 '''
             }
         }
@@ -41,7 +74,11 @@ pipeline {
                 echo "Starting services with docker-compose..."
                 sh '''
                     cd ${WORKSPACE_ROOT}
-                    docker-compose up -d
+                    if command -v docker-compose &> /dev/null; then
+                        docker-compose up -d
+                    else
+                        docker compose up -d
+                    fi
                     echo "Waiting for services to be ready..."
                     sleep 5
                 '''
@@ -69,14 +106,19 @@ pipeline {
             steps {
                 echo "Service logs for debugging (if needed)..."
                 sh '''
+                    COMPOSE="docker-compose"
+                    if ! command -v docker-compose &> /dev/null; then
+                        COMPOSE="docker compose"
+                    fi
+                    
                     echo "=== API Service Logs ==="
-                    docker-compose logs api || echo "No logs available"
+                    $COMPOSE logs api || echo "No logs available"
                     echo ""
                     echo "=== Worker Service Logs ==="
-                    docker-compose logs worker || echo "No logs available"
+                    $COMPOSE logs worker || echo "No logs available"
                     echo ""
                     echo "=== Database Logs ==="
-                    docker-compose logs postgres || echo "No logs available"
+                    $COMPOSE logs postgres || echo "No logs available"
                 '''
             }
         }
@@ -86,7 +128,11 @@ pipeline {
                 echo "Shutting down docker-compose services..."
                 sh '''
                     cd ${WORKSPACE_ROOT}
-                    docker-compose down -v || true
+                    COMPOSE="docker-compose"
+                    if ! command -v docker-compose &> /dev/null; then
+                        COMPOSE="docker compose"
+                    fi
+                    $COMPOSE down -v || true
                 '''
             }
         }
@@ -189,7 +235,11 @@ pipeline {
             echo "Pipeline execution completed."
             sh '''
                 echo "Cleaning up any remaining containers..."
-                docker-compose down -v 2>/dev/null || true
+                COMPOSE="docker-compose"
+                if ! command -v docker-compose &> /dev/null; then
+                    COMPOSE="docker compose"
+                fi
+                $COMPOSE down -v 2>/dev/null || true
                 
                 echo "Removing build artifacts and temporary images..."
                 docker image prune -f --filter "dangling=true" 2>/dev/null || true
@@ -203,7 +253,11 @@ pipeline {
             sh '''
                 echo "=== Debugging Information ==="
                 docker ps -a
-                docker-compose ps 2>/dev/null || true
+                COMPOSE="docker-compose"
+                if ! command -v docker-compose &> /dev/null; then
+                    COMPOSE="docker compose"
+                fi
+                $COMPOSE ps 2>/dev/null || true
             '''
         }
     }
