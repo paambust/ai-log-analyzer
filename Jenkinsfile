@@ -13,7 +13,6 @@ pipeline {
         COMPOSE_FILE = "${WORKSPACE}/docker-compose.yml"
         IMAGE_API = "${DOCKER_REGISTRY}/${DOCKER_USERNAME}/ai-log-analyzer-api"
         IMAGE_WORKER = "${DOCKER_REGISTRY}/${DOCKER_USERNAME}/ai-log-analyzer-worker"
-        // Credentials for Docker Hub authentication
         DOCKER_HUB_CREDENTIALS = credentials('docker-hub-credentials')
     }
 
@@ -22,26 +21,46 @@ pipeline {
             steps {
                 echo "Checking dependencies..."
                 sh '''
-                    # Ensure docker-compose is available
-                    if ! command -v docker-compose &> /dev/null && command -v docker &> /dev/null; then
-                        echo "docker-compose not found, checking for docker compose v2..."
-                        if docker compose version &> /dev/null; then
-                            echo "✓ Docker Compose V2 available"
-                            # Create alias for compatibility
-                            alias docker-compose="docker compose"
-                        else
-                            echo "⚠ Installing docker-compose..."
-                            curl -L "https://github.com/docker/compose/releases/download/v2.20.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose 2>/dev/null
-                            chmod +x /usr/local/bin/docker-compose
-                            docker-compose --version
-                        fi
+                    # Install Python3 and pip if missing
+                    if ! command -v python3 &> /dev/null; then
+                        echo "⚠ Python3 not found, installing..."
+                        apt-get update && apt-get install -y python3 python3-pip
+                    fi
+                    
+                    if ! command -v pip &> /dev/null; then
+                        echo "⚠ pip not found, installing..."
+                        apt-get update && apt-get install -y python3-pip
+                    fi
+                    
+                    echo "✓ Python and pip available"
+                    python3 --version
+                    pip --version
+                    
+                    # Check Docker
+                    if ! command -v docker &> /dev/null; then
+                        echo "❌ ERROR: Docker not found in container"
+                        echo "Solution: Install Docker in Jenkins container"
+                        exit 1
+                    fi
+                    echo "✓ Docker available"
+                    docker --version
+                    
+                    # Check docker-compose
+                    if command -v docker-compose &> /dev/null; then
+                        echo "✓ docker-compose v1 available"
+                        docker-compose --version
+                    elif docker compose version &> /dev/null; then
+                        echo "✓ Docker Compose v2 available"
+                        docker compose version
                     else
-                        echo "✓ docker-compose available"
+                        echo "⚠ docker-compose not found, installing..."
+                        curl -L "https://github.com/docker/compose/releases/download/v2.20.0/docker-compose-$(uname -s)-$(uname -m)" \
+                            -o /usr/local/bin/docker-compose 2>/dev/null
+                        chmod +x /usr/local/bin/docker-compose
                         docker-compose --version
                     fi
                     
-                    # Verify docker
-                    docker --version
+                    echo "✓ All dependencies available"
                 '''
             }
         }
@@ -59,7 +78,6 @@ pipeline {
                 echo "Building Docker images from docker-compose..."
                 sh '''
                     cd ${WORKSPACE_ROOT}
-                    # Try docker-compose first, fall back to docker compose (v2)
                     if command -v docker-compose &> /dev/null; then
                         docker-compose build --no-cache
                     else
