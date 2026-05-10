@@ -114,7 +114,7 @@ EOF
                     echo "✓ All tests passed!"
                 '''
             }
-        '}
+        }
 
         stage('View Logs') {
             steps {
