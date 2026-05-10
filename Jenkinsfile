@@ -82,7 +82,7 @@ def check_port(host, port, timeout=2):
 max_retries = 30
 retry = 0
 while retry < max_retries:
-    if check_port('localhost', 8000):
+    if check_port('api-service', 8000):
         print("✓ API service is ready on port 8000!")
         break
     retry += 1
@@ -95,7 +95,7 @@ else:
 # Wait for database to be ready
 retry = 0
 while retry < max_retries:
-    if check_port('localhost', 5432):
+    if check_port('postgres', 5432):
         print("✓ Database service is ready on port 5432!")
         break
     retry += 1
@@ -110,7 +110,7 @@ EOF
                     
                     # Run integration tests
                     echo "Running integration tests..."
-                    API_URL="http://localhost:8000" python3 tests/test_api.py
+                    API_URL="http://api-service:8000" python3 tests/test_api.py
                     echo "✓ All tests passed!"
                 '''
             }
