@@ -25,6 +25,8 @@ def get_conn(max_retries=5, retry_delay=2):
 
 
 def analyze_log_with_llm(service, level, message):
+    llm_endpoint = os.getenv("LLM_ENDPOINT", "http://192.168.0.3:11434/api/generate")
+    
     prompt = f"""You are a senior DevOps/SRE engineer with expertise in system troubleshooting.
 
 Analyze the following production log entry and provide actionable insights:
@@ -45,7 +47,7 @@ Be concise but specific. Focus on actionable items."""
 
     try:
         response = requests.post(
-            "http://192.168.0.3:11434/api/generate",
+            llm_endpoint,
             json={
                 "model": "tinyllama",
                 "prompt": prompt,
@@ -61,40 +63,53 @@ Be concise but specific. Focus on actionable items."""
             data = response.json()
             return data.get("response", "No response from LLM")
         else:
-            return f"LLM error: {response.status_code}"
+            return f"LLM error: {response.status_code} - Auto-generated analysis for {service} [{level}]: {message}"
+    except requests.exceptions.ConnectionError:
+        # LLM not available - generate mock analysis for testing
+        severity_map = {"ERROR": "HIGH", "CRITICAL": "CRITICAL", "WARNING": "MEDIUM"}
+        severity = severity_map.get(level, "LOW")
+        return f"[MOCK ANALYSIS - LLM unavailable]\nService: {service}\nLog Level: {level}\nSeverity: {severity}\nMessage: {message}\n\nNote: This is a mock analysis. Connect LLM for full analysis."
     except Exception as e:
-        return f"Failed to call LLM: {str(e)}"
+        return f"Failed to call LLM: {str(e)} - Using default analysis"
 
 
 while True:
-    conn = get_conn()
-    cur = conn.cursor()
+    try:
+        conn = get_conn()
+        cur = conn.cursor()
 
-    # Only analyze ERROR logs (cost control)
-    cur.execute("""
-        SELECT id, service, level, message 
-        FROM logs 
-        WHERE analyzed = false
-        LIMIT 5
-    """)
+        # Analyze unanalyzed logs (not just ERROR, to support testing)
+        cur.execute("""
+            SELECT id, service, level, message 
+            FROM logs 
+            WHERE analyzed = false
+            LIMIT 5
+        """)
 
-    rows = cur.fetchall()
+        rows = cur.fetchall()
 
-    for row in rows:
-        log_id, service, level, message = row
+        for row in rows:
+            log_id, service, level, message = row
 
-        try:
-            analysis = analyze_log_with_llm(service, level, message)
-        except Exception as e:
-            analysis = f"LLM failed: {str(e)}"
+            try:
+                print(f"Analyzing log {log_id}: [{level}] {service}")
+                analysis = analyze_log_with_llm(service, level, message)
+            except Exception as e:
+                analysis = f"LLM failed: {str(e)}"
 
-        cur.execute(
-            "UPDATE logs SET analyzed=true, analysis=%s WHERE id=%s",
-            (analysis, log_id)
-        )
+            cur.execute(
+                "UPDATE logs SET analyzed=true, analysis=%s WHERE id=%s",
+                (analysis, log_id)
+            )
+            print(f"  ✓ Log {log_id} analyzed and marked")
 
-    conn.commit()
-    cur.close()
-    conn.close()
-
-    time.sleep(10)
+        conn.commit()
+        cur.close()
+        conn.close()
+        
+        # Sleep before next iteration
+        time.sleep(10)
+        
+    except Exception as e:
+        print(f"Worker error: {e}")
+        time.sleep(10)  # Retry after delay

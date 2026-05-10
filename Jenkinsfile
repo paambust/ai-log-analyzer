@@ -17,51 +17,6 @@ pipeline {
     }
 
     stages {
-        stage('Setup') {
-            steps {
-                echo "Checking dependencies..."
-                sh '''
-                    set -e
-                    
-                    # Python3 and pip should already be installed in the container
-                    echo "✓ Checking Python3..."
-                    python3 --version
-                    
-                    echo "✓ Checking pip..."
-                    pip3 --version || pip --version
-                    
-                    # Check Docker using direct path
-                    echo "✓ Checking Docker..."
-                    if [ ! -x "/usr/bin/docker" ]; then
-                        echo "❌ ERROR: Docker not found at /usr/bin/docker"
-                        exit 1
-                    fi
-                    /usr/bin/docker --version
-                    
-                    # Check docker-compose
-                    echo "✓ Checking docker-compose..."
-                    if [ -x "/usr/local/bin/docker-compose" ]; then
-                        /usr/local/bin/docker-compose --version
-                    elif [ -x "/usr/bin/docker-compose" ]; then
-                        /usr/bin/docker-compose --version
-                    elif command -v docker-compose &> /dev/null; then
-                        docker-compose --version
-                    elif docker compose version &> /dev/null; then
-                        echo "✓ Docker Compose v2"
-                        docker compose version
-                    else
-                        echo "⚠ docker-compose not found, installing..."
-                        curl -L "https://github.com/docker/compose/releases/download/v2.20.0/docker-compose-$(uname -s)-$(uname -m)" \
-                            -o /usr/local/bin/docker-compose 2>/dev/null
-                        chmod +x /usr/local/bin/docker-compose
-                        /usr/local/bin/docker-compose --version
-                    fi
-                    
-                    echo "✓ All dependencies verified"
-                '''
-            }
-        }
-
         stage('Checkout') {
             steps {
                 echo "Checking out repository..."
@@ -75,11 +30,7 @@ pipeline {
                 echo "Building Docker images from docker-compose..."
                 sh '''
                     cd ${WORKSPACE_ROOT}
-                    if command -v docker-compose &> /dev/null; then
-                        docker-compose build --no-cache
-                    else
-                        docker compose build --no-cache
-                    fi
+                    docker-compose build --no-cache
                 '''
             }
         }
@@ -105,17 +56,65 @@ pipeline {
                 echo "Running health checks and tests..."
                 sh '''
                     cd ${WORKSPACE_ROOT}
-                    # Install test dependencies
-                    # echo "Installing test dependencies..."
-                    # pip install -r tests/requirements.txt --quiet
+                    
+                    # Determine which compose command to use
+                    COMPOSE="docker-compose"
+                    if ! command -v docker-compose &> /dev/null; then
+                        COMPOSE="docker compose"
+                    fi
+                    
+                    # Enhanced wait logic using Python (more reliable than curl)
+                    echo "Waiting for services to reach healthy state..."
+                    python3 << 'EOF'
+import socket
+import time
+import sys
+
+def check_port(host, port, timeout=2):
+    """Check if a port is open"""
+    try:
+        socket.create_connection((host, port), timeout=timeout)
+        return True
+    except (socket.timeout, socket.error):
+        return False
+
+# Wait for API to be ready
+max_retries = 30
+retry = 0
+while retry < max_retries:
+    if check_port('localhost', 8000):
+        print("✓ API service is ready on port 8000!")
+        break
+    retry += 1
+    print(f"  Attempt {retry}/{max_retries} - Waiting for API service...")
+    time.sleep(2)
+else:
+    print("✗ API service failed to start within timeout")
+    sys.exit(1)
+
+# Wait for database to be ready
+retry = 0
+while retry < max_retries:
+    if check_port('localhost', 5432):
+        print("✓ Database service is ready on port 5432!")
+        break
+    retry += 1
+    print(f"  Attempt {retry}/{max_retries} - Waiting for database...")
+    time.sleep(2)
+else:
+    print("✗ Database service failed to start within timeout")
+    sys.exit(1)
+
+print("✓ All services are ready!")
+EOF
                     
                     # Run integration tests
                     echo "Running integration tests..."
-                    python3 tests/test_api.py
-                    echo "All tests passed!"
+                    API_URL="http://localhost:8000" python3 tests/test_api.py
+                    echo "✓ All tests passed!"
                 '''
             }
-        }
+        '}
 
         stage('View Logs') {
             steps {

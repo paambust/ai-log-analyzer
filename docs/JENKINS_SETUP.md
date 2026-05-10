@@ -15,6 +15,17 @@ This guide helps you set up the AI Log Analyzer pipeline in your Jenkins instanc
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v jenkins_home_lab:/var/jenkins_home \
   jenkins/jenkins:lts
+
+docker run -d \
+  --name jenkins-lab \
+  --user root \
+  -p 8080:8080 \
+  -p 50000:50000 \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v $(pwd):/home/ubuntu/ai-log-analyzer \
+  -v jenkins_home_lab:/var/jenkins_home \
+  docker.io/library/pawambust.jenkins:lts-pawan-0.1
+
 docker exec jenkins-test cat /var/jenkins_home/secrets/initialAdminPassword
 3827d4072f5e4d0d862ef4214288034e
 http://localhost:8080

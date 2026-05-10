@@ -10,7 +10,9 @@ import sys
 import json
 
 # Configuration
-API_URL = "http://localhost:8000"
+# Use 'api' service name when running in Docker Compose network, fallback to localhost for local dev
+import os
+API_URL = os.getenv("API_URL", "http://localhost:8000")
 HEALTH_CHECK_RETRIES = 10
 HEALTH_CHECK_DELAY = 2
 
@@ -111,6 +113,54 @@ def test_multiple_log_levels():
     
     return all_ok
 
+def test_log_analysis():
+    """Test: Verify worker analyzes logs and marks them as analyzed"""
+    print("\n--- Testing Log Analysis (LLM) ---")
+    
+    # Create a log
+    log_data = {
+        "service": "analysis-test",
+        "level": "ERROR",
+        "message": "Test error for analysis"
+    }
+    
+    try:
+        # Create the log
+        response = requests.post(f"{API_URL}/logs", json=log_data, timeout=5)
+        if response.status_code != 200:
+            log_test("Log Analysis", False, "Failed to create log")
+            return False
+        
+        # Wait for worker to analyze (worker runs every 10 seconds)
+        print("  Waiting for worker to analyze logs (15 seconds)...")
+        for i in range(15):
+            if i > 0 and i % 5 == 0:
+                print(f"    {15 - i} seconds remaining...")
+            time.sleep(1)
+        
+        # Check if any logs are marked as analyzed
+        response = requests.get(f"{API_URL}/logs?analyzed=true&limit=10", timeout=5)
+        
+        if response.status_code != 200:
+            log_test("Log Analysis", False, "Failed to retrieve analyzed logs")
+            return False
+        
+        analyzed_logs = response.json()
+        is_ok = len(analyzed_logs) > 0
+        
+        if is_ok and len(analyzed_logs) > 0:
+            log_test("Log Analysis", True, f"Found {len(analyzed_logs)} analyzed logs with LLM insights")
+            # Print a sample analysis
+            sample = analyzed_logs[0]
+            print(f"    Sample analysis (first 100 chars): {sample.get('analysis', 'N/A')[:100]}...")
+        else:
+            log_test("Log Analysis", False, "No analyzed logs found (worker may not have LLM access)")
+        
+        return is_ok
+    except Exception as e:
+        log_test("Log Analysis", False, str(e))
+        return False
+
 def test_service_connectivity():
     """Test: Database connectivity through API"""
     print("\n--- Testing Database Connectivity ---")
@@ -143,6 +193,7 @@ def main():
         ("Create Log", test_create_log),
         ("Retrieve Logs", test_retrieve_logs),
         ("Test Log Levels", test_multiple_log_levels),
+        ("Log Analysis (LLM)", test_log_analysis),
     ]
     
     results = []

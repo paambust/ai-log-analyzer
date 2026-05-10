@@ -6,7 +6,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # 1. Copy the file from your local machine into the image
-COPY requirements.txt /tests/requirements.txt
+COPY /tests/requirements.txt /tests/requirements.txt
 
 # 2. Install the requirements
 RUN pip3 install --no-cache-dir -r /tests/requirements.txt --break-system-packages
