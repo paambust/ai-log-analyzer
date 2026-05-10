@@ -62,3 +62,8 @@ services:
 
 volumes:
   pgdata:
+
+networks:
+  jenkins_net:
+    external: true
+    name: bridge
