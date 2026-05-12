@@ -30,7 +30,7 @@ pipeline {
                 echo "Building Docker images from docker-compose..."
                 sh '''
                     cd ${WORKSPACE_ROOT}
-                    docker-compose build --no-cache
+                    docker compose build --no-cache
                 '''
             }
         }
@@ -40,11 +40,7 @@ pipeline {
                 echo "Starting services with docker-compose..."
                 sh '''
                     cd ${WORKSPACE_ROOT}
-                    if command -v docker-compose &> /dev/null; then
-                        docker-compose up -d
-                    else
-                        docker compose up -d
-                    fi
+                    docker compose up -d
                     echo "Waiting for services to be ready..."
                     sleep 5
                 '''
@@ -56,58 +52,11 @@ pipeline {
                 echo "Running health checks and tests..."
                 sh '''
                     cd ${WORKSPACE_ROOT}
-                    
-                    # Determine which compose command to use
-                    COMPOSE="docker-compose"
-                    if ! command -v docker-compose &> /dev/null; then
-                        COMPOSE="docker compose"
-                    fi
-                    
-                    # Enhanced wait logic using Python (more reliable than curl)
+                    # Connect the Jenkins container to the compose network so it can reach services
+                    docker network connect ai_logs_net jenkins-lab || true
                     echo "Waiting for services to reach healthy state..."
-                    python3 << 'EOF'
-import socket
-import time
-import sys
+                    python3 ${WORKSPACE_ROOT}/scripts/wait_for_services.py
 
-def check_port(host, port, timeout=2):
-    """Check if a port is open"""
-    try:
-        socket.create_connection((host, port), timeout=timeout)
-        return True
-    except (socket.timeout, socket.error):
-        return False
-
-# Wait for API to be ready
-max_retries = 30
-retry = 0
-while retry < max_retries:
-    if check_port('api-service', 8000):
-        print("✓ API service is ready on port 8000!")
-        break
-    retry += 1
-    print(f"  Attempt {retry}/{max_retries} - Waiting for API service...")
-    time.sleep(2)
-else:
-    print("✗ API service failed to start within timeout")
-    sys.exit(1)
-
-# Wait for database to be ready
-retry = 0
-while retry < max_retries:
-    if check_port('postgres', 5432):
-        print("✓ Database service is ready on port 5432!")
-        break
-    retry += 1
-    print(f"  Attempt {retry}/{max_retries} - Waiting for database...")
-    time.sleep(2)
-else:
-    print("✗ Database service failed to start within timeout")
-    sys.exit(1)
-
-print("✓ All services are ready!")
-EOF
-                    
                     # Run integration tests
                     echo "Running integration tests..."
                     API_URL="http://api-service:8000" python3 tests/test_api.py
@@ -120,19 +69,15 @@ EOF
             steps {
                 echo "Service logs for debugging (if needed)..."
                 sh '''
-                    COMPOSE="docker-compose"
-                    if ! command -v docker-compose &> /dev/null; then
-                        COMPOSE="docker compose"
-                    fi
-                    
+                    cd ${WORKSPACE_ROOT}
                     echo "=== API Service Logs ==="
-                    $COMPOSE logs api || echo "No logs available"
+                    docker compose logs api || echo "No logs available"
                     echo ""
                     echo "=== Worker Service Logs ==="
-                    $COMPOSE logs worker || echo "No logs available"
+                    docker compose logs worker || echo "No logs available"
                     echo ""
                     echo "=== Database Logs ==="
-                    $COMPOSE logs postgres || echo "No logs available"
+                    docker compose logs postgres || echo "No logs available"
                 '''
             }
         }
@@ -142,11 +87,7 @@ EOF
                 echo "Shutting down docker-compose services..."
                 sh '''
                     cd ${WORKSPACE_ROOT}
-                    COMPOSE="docker-compose"
-                    if ! command -v docker-compose &> /dev/null; then
-                        COMPOSE="docker compose"
-                    fi
-                    $COMPOSE down -v || true
+                    docker compose down -v || true
                 '''
             }
         }

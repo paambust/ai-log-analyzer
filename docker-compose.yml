@@ -5,8 +5,6 @@ services:
   postgres:
     image: postgres:15
     container_name: postgres
-    networks:
-      - jenkins_net
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
@@ -20,12 +18,12 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - ai_logs_net
 
   api:
     build: ./api
     container_name: api-service
-    networks:
-      - jenkins_net
     ports:
       - "8000:8000"
     depends_on:
@@ -38,17 +36,17 @@ services:
       DB_PASSWORD: admin
       DB_NAME: logsdb
     healthcheck:
-      test: ["CMD-SHELL", "python3 -c 'import socket; socket.create_connection((\"localhost\", 8000), timeout=2)' || exit 1"]
+      test: ["CMD-SHELL", "python3 -c 'import socket; socket.create_connection((\"api-service\", 8000), timeout=2)' || exit 1"]
       interval: 5s
       timeout: 5s
       retries: 5
       start_period: 10s
+    networks:
+      - ai_logs_net
 
   worker:
     build: ./worker
     container_name: worker-service
-    networks:
-      - jenkins_net
     depends_on:
       postgres:
         condition: service_healthy
@@ -59,11 +57,12 @@ services:
       DB_PASSWORD: admin
       DB_NAME: logsdb
       LLM_API_KEY: your_key_here
+    networks:
+      - ai_logs_net
 
 volumes:
   pgdata:
 
 networks:
-  jenkins_net:
-    external: true
-    name: bridge
+  ai_logs_net:
+    driver: bridge
