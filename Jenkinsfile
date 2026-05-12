@@ -7,9 +7,9 @@ pipeline {
 
     parameters {
         string(name: 'DOCKER_REGISTRY', defaultValue: 'docker.io', description: 'Docker registry')
-        string(name: 'DOCKER_USERNAME', defaultValue: 'paambust', description: 'Docker Hub username')
-        string(name: 'IMAGE_TAG', defaultValue: 'latest', description: 'Docker image tag')
-        booleanParam(name: 'PUSH_IMAGES', defaultValue: false, description: 'Push multi-arch images to Docker Hub')
+        string(name: 'DOCKER_USERNAME', defaultValue: 'pawambust', description: 'Docker Hub username')
+        string(name: 'IMAGE_TAG', defaultValue: '0.1', description: 'Docker image tag')
+        booleanParam(name: 'PUSH_IMAGES', defaultValue: true, description: 'Push multi-arch images to Docker Hub')
     }
 
     environment {
