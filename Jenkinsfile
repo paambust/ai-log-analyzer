@@ -112,19 +112,25 @@ pipeline {
             steps {
                 echo "Building multi-architecture Docker images (AMD64 + ARM64)..."
                 sh '''
+                    set -euo pipefail
                     cd ${WORKSPACE_ROOT}
-                    
-                    # Check if buildx is available
-                    docker buildx version || {
-                        echo "Setting up docker buildx..."
-                        docker buildx create --use || true
-                    }
-                    
+
+                    # Ensure a docker-container builder exists (supports cross-build QEMU emulation)
+                    docker buildx version >/dev/null 2>&1 || true
+                    docker buildx inspect multi-builder >/dev/null 2>&1 || \
+                        docker buildx create --name multi-builder --driver docker-container --use
+
+                    # Register QEMU/binfmt handlers so non-native architectures can run
+                    docker run --privileged --rm tonistiigi/binfmt:latest --install all || true
+
+                    # Bootstrap the builder
+                    docker buildx inspect --bootstrap || true
+
                     # Login to Docker Hub using Jenkins credentials
                     echo "Authenticating to Docker Hub..."
                     echo "${DOCKER_HUB_CREDENTIALS_PSW}" | docker login -u "${DOCKER_HUB_CREDENTIALS_USR}" --password-stdin ${DOCKER_REGISTRY}
-                    
-                    # Build and push API image
+
+                    # Build and push API image for amd64 and arm64
                     echo "Building API image for amd64,arm64..."
                     docker buildx build \
                         --platform linux/amd64,linux/arm64 \
@@ -133,7 +139,7 @@ pipeline {
                         --push \
                         -f ./api/Dockerfile \
                         ./api
-                    
+
                     # Build and push Worker image
                     echo "Building Worker image for amd64,arm64..."
                     docker buildx build \
@@ -143,10 +149,10 @@ pipeline {
                         --push \
                         -f ./worker/Dockerfile \
                         ./worker
-                    
+
                     # Logout from Docker Hub (security best practice)
                     echo "Logging out from Docker Hub..."
-                    docker logout
+                    docker logout || true
 
                     echo "Multi-arch images built and pushed successfully!"
                 '''
@@ -203,11 +209,7 @@ pipeline {
             echo "Pipeline execution completed."
             sh '''
                 echo "Cleaning up any remaining containers..."
-                COMPOSE="docker-compose"
-                if ! command -v docker-compose &> /dev/null; then
-                    COMPOSE="docker compose"
-                fi
-                $COMPOSE down -v 2>/dev/null || true
+                docker compose down -v 2>/dev/null || true
                 
                 echo "Removing build artifacts and temporary images..."
                 docker image prune -f --filter "dangling=true" 2>/dev/null || true
@@ -221,11 +223,7 @@ pipeline {
             sh '''
                 echo "=== Debugging Information ==="
                 docker ps -a
-                COMPOSE="docker-compose"
-                if ! command -v docker-compose &> /dev/null; then
-                    COMPOSE="docker compose"
-                fi
-                $COMPOSE ps 2>/dev/null || true
+                docker compose ps 2>/dev/null || true
             '''
         }
     }
