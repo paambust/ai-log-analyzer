@@ -13,14 +13,15 @@ Fetching upstream changes from https://github.com/paambust/ai-log-analyzer
 using GIT_ASKPASS to set credentials 
  > git fetch --tags --force --progress -- https://github.com/paambust/ai-log-analyzer +refs/heads/*:refs/remotes/origin/* # timeout=10
 Seen branch in repository origin/add_llm_intergation
+Seen branch in repository origin/decorate_jenkins_logs
 Seen branch in repository origin/main
-Seen 2 remote branches
+Seen 3 remote branches
  > git show-ref --tags -d # timeout=10
-Checking out Revision 2a5cace47d872eaf6b3739e577149969b4aa9f18 (origin/add_llm_intergation)
+Checking out Revision 9c3dc908ed0c406d16bd3dd43220a402755e6efb (origin/decorate_jenkins_logs)
  > git config core.sparsecheckout # timeout=10
- > git checkout -f 2a5cace47d872eaf6b3739e577149969b4aa9f18 # timeout=10
-Commit message: "another commit"
- > git rev-list --no-walk 9e02305f926eb6a7a4ed8a508adb9a316680ea87 # timeout=10
+ > git checkout -f 9c3dc908ed0c406d16bd3dd43220a402755e6efb # timeout=10
+Commit message: "another changes"
+ > git rev-list --no-walk 9c3dc908ed0c406d16bd3dd43220a402755e6efb # timeout=10
 [Pipeline] Start of Pipeline
 [Pipeline] node
 Running on Jenkins in /var/jenkins_home/workspace/ai-logs-analyzer-latest
@@ -39,13 +40,14 @@ Fetching upstream changes from https://github.com/paambust/ai-log-analyzer
 using GIT_ASKPASS to set credentials 
  > git fetch --tags --force --progress -- https://github.com/paambust/ai-log-analyzer +refs/heads/*:refs/remotes/origin/* # timeout=10
 Seen branch in repository origin/add_llm_intergation
+Seen branch in repository origin/decorate_jenkins_logs
 Seen branch in repository origin/main
-Seen 2 remote branches
+Seen 3 remote branches
  > git show-ref --tags -d # timeout=10
-Checking out Revision 2a5cace47d872eaf6b3739e577149969b4aa9f18 (origin/add_llm_intergation)
+Checking out Revision 9c3dc908ed0c406d16bd3dd43220a402755e6efb (origin/decorate_jenkins_logs)
  > git config core.sparsecheckout # timeout=10
- > git checkout -f 2a5cace47d872eaf6b3739e577149969b4aa9f18 # timeout=10
-Commit message: "another commit"
+ > git checkout -f 9c3dc908ed0c406d16bd3dd43220a402755e6efb # timeout=10
+Commit message: "another changes"
 [Pipeline] }
 [Pipeline] // stage
 [Pipeline] withEnv
@@ -55,397 +57,810 @@ Masking supported pattern matches of $DOCKER_HUB_CREDENTIALS or $DOCKER_HUB_CRED
 [Pipeline] {
 [Pipeline] withEnv
 [Pipeline] {
-[Pipeline] stage
-[Pipeline] { (Setup)
-[Pipeline] echo
-Checking dependencies...
-[Pipeline] sh
-+ set -e
-+ echo ✓ Checking Python3...
-✓ Checking Python3...
-+ python3 --version
-Python 3.13.5
-+ echo ✓ Checking pip...
-✓ Checking pip...
-+ pip3 --version
-pip 25.1.1 from /usr/lib/python3/dist-packages/pip (python 3.13)
-+ echo ✓ Checking Docker...
-✓ Checking Docker...
-+ [ ! -x /usr/bin/docker ]
-+ /usr/bin/docker --version
-Docker version 26.1.5+dfsg1, build a72d7cd
-+ echo ✓ Checking docker-compose...
-✓ Checking docker-compose...
-+ [ -x /usr/local/bin/docker-compose ]
-+ [ -x /usr/bin/docker-compose ]
-+ /usr/bin/docker-compose --version
-Docker Compose version 2.26.1-4
-+ echo ✓ All dependencies verified
-✓ All dependencies verified
-[Pipeline] }
-[Pipeline] // stage
+[Pipeline] timestamps
+[Pipeline] {
 [Pipeline] stage
 [Pipeline] { (Checkout)
 [Pipeline] echo
-Checking out repository...
+15:56:47  Checking out repository...
 [Pipeline] checkout
-The recommended git tool is: NONE
-using credential github_token
- > git rev-parse --resolve-git-dir /var/jenkins_home/workspace/ai-logs-analyzer-latest/.git # timeout=10
-Fetching changes from the remote Git repository
- > git config remote.origin.url https://github.com/paambust/ai-log-analyzer # timeout=10
-Fetching upstream changes from https://github.com/paambust/ai-log-analyzer
- > git --version # timeout=10
- > git --version # 'git version 2.47.3'
-using GIT_ASKPASS to set credentials 
- > git fetch --tags --force --progress -- https://github.com/paambust/ai-log-analyzer +refs/heads/*:refs/remotes/origin/* # timeout=10
-Seen branch in repository origin/add_llm_intergation
-Seen branch in repository origin/main
-Seen 2 remote branches
- > git show-ref --tags -d # timeout=10
-Checking out Revision 2a5cace47d872eaf6b3739e577149969b4aa9f18 (origin/add_llm_intergation)
- > git config core.sparsecheckout # timeout=10
- > git checkout -f 2a5cace47d872eaf6b3739e577149969b4aa9f18 # timeout=10
-Commit message: "another commit"
+15:56:47  The recommended git tool is: NONE
+15:56:47  using credential github_token
+15:56:47   > git rev-parse --resolve-git-dir /var/jenkins_home/workspace/ai-logs-analyzer-latest/.git # timeout=10
+15:56:47  Fetching changes from the remote Git repository
+15:56:47   > git config remote.origin.url https://github.com/paambust/ai-log-analyzer # timeout=10
+15:56:47  Fetching upstream changes from https://github.com/paambust/ai-log-analyzer
+15:56:47   > git --version # timeout=10
+15:56:47   > git --version # 'git version 2.47.3'
+15:56:47  using GIT_ASKPASS to set credentials 
+15:56:47   > git fetch --tags --force --progress -- https://github.com/paambust/ai-log-analyzer +refs/heads/*:refs/remotes/origin/* # timeout=10
+15:56:48  Seen branch in repository origin/add_llm_intergation
+15:56:48  Seen branch in repository origin/decorate_jenkins_logs
+15:56:48  Seen branch in repository origin/main
+15:56:48  Seen 3 remote branches
+15:56:48   > git show-ref --tags -d # timeout=10
+15:56:48  Checking out Revision 9c3dc908ed0c406d16bd3dd43220a402755e6efb (origin/decorate_jenkins_logs)
+15:56:48   > git config core.sparsecheckout # timeout=10
+15:56:48   > git checkout -f 9c3dc908ed0c406d16bd3dd43220a402755e6efb # timeout=10
+15:56:48  Commit message: "another changes"
 [Pipeline] sh
-+ git log -1 --pretty=%B
-another commit
-
+15:56:48  + git log -1 --pretty=%B
+15:56:48  another changes
+15:56:48  
 [Pipeline] }
 [Pipeline] // stage
 [Pipeline] stage
 [Pipeline] { (Build Services)
 [Pipeline] echo
-Building Docker images from docker-compose...
+15:56:48  Building Docker images from docker-compose...
 [Pipeline] sh
-+ cd /var/jenkins_home/workspace/ai-logs-analyzer-latest
-+ 
-+ docker-compose build --no-cache
-+ command -v docker-compose
-/usr/bin/docker-compose
-time="2026-05-09T15:49:13Z" level=warning msg="/var/jenkins_home/workspace/ai-logs-analyzer-latest/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
-#0 building with "default" instance using docker driver
-
-#1 [api internal] load build definition from Dockerfile
-#1 transferring dockerfile: 228B done
-#1 DONE 0.0s
-
-#2 [worker internal] load build definition from Dockerfile
-#2 transferring dockerfile: 189B done
-#2 DONE 0.0s
-
-#3 [worker internal] load metadata for docker.io/library/python:3.11-slim
-#3 DONE 1.5s
-
-#4 [worker internal] load .dockerignore
-#4 transferring context: 2B done
-#4 DONE 0.0s
-
-#5 [api internal] load .dockerignore
-#5 transferring context: 2B done
-#5 DONE 0.1s
-
-#6 [worker internal] load build context
-#6 transferring context: 96B done
-#6 DONE 0.0s
-
-#7 [api internal] load build context
-#7 transferring context: 94B done
-#7 DONE 0.0s
-
-#8 [api 1/5] FROM docker.io/library/python:3.11-slim@sha256:a5b427ace4900267d93db34138e512325c6fa6af84ad5e4ed5f3b36258cc4142
-#8 resolve docker.io/library/python:3.11-slim@sha256:a5b427ace4900267d93db34138e512325c6fa6af84ad5e4ed5f3b36258cc4142 0.0s done
-#8 DONE 0.0s
-
-#9 [api 2/5] WORKDIR /app
-#9 CACHED
-
-#10 [api 3/5] COPY requirements.txt .
-#10 DONE 0.0s
-
-#11 [worker 3/5] COPY requirements.txt .
-#11 DONE 0.0s
-
-#12 [worker 4/5] RUN pip install --no-cache-dir -r requirements.txt
-#12 1.865 Collecting psycopg2-binary (from -r requirements.txt (line 1))
-#12 1.895   Downloading psycopg2_binary-2.9.12-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (4.9 kB)
-#12 1.939 Collecting requests (from -r requirements.txt (line 2))
-#12 1.945   Downloading requests-2.33.1-py3-none-any.whl.metadata (4.8 kB)
-#12 2.094 Collecting charset_normalizer<4,>=2 (from requests->-r requirements.txt (line 2))
-#12 2.102   Downloading charset_normalizer-3.4.7-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (40 kB)
-#12 2.109      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 40.9/40.9 kB 7.8 MB/s eta 0:00:00
-#12 2.129 Collecting idna<4,>=2.5 (from requests->-r requirements.txt (line 2))
-#12 2.136   Downloading idna-3.13-py3-none-any.whl.metadata (8.0 kB)
-#12 2.186 Collecting urllib3<3,>=1.26 (from requests->-r requirements.txt (line 2))
-#12 2.192   Downloading urllib3-2.7.0-py3-none-any.whl.metadata (6.9 kB)
-#12 2.231 Collecting certifi>=2023.5.7 (from requests->-r requirements.txt (line 2))
-#12 2.238   Downloading certifi-2026.4.22-py3-none-any.whl.metadata (2.5 kB)
-#12 2.259 Downloading psycopg2_binary-2.9.12-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (4.3 MB)
-#12 2.644    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.3/4.3 MB 11.2 MB/s eta 0:00:00
-#12 2.648 Downloading requests-2.33.1-py3-none-any.whl (64 kB)
-#12 2.654    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 64.9/64.9 kB 14.0 MB/s eta 0:00:00
-#12 2.658 Downloading certifi-2026.4.22-py3-none-any.whl (135 kB)
-#12 2.670    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 135.7/135.7 kB 13.0 MB/s eta 0:00:00
-#12 2.674 Downloading charset_normalizer-3.4.7-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (214 kB)
-#12 2.694    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 214.1/214.1 kB 11.9 MB/s eta 0:00:00
-#12 2.698 Downloading idna-3.13-py3-none-any.whl (68 kB)
-#12 2.705    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 68.6/68.6 kB 14.1 MB/s eta 0:00:00
-#12 2.708 Downloading urllib3-2.7.0-py3-none-any.whl (131 kB)
-#12 2.723    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 131.1/131.1 kB 10.3 MB/s eta 0:00:00
-#12 2.837 Installing collected packages: urllib3, psycopg2-binary, idna, charset_normalizer, certifi, requests
-#12 3.168 Successfully installed certifi-2026.4.22 charset_normalizer-3.4.7 idna-3.13 psycopg2-binary-2.9.12 requests-2.33.1 urllib3-2.7.0
-#12 3.168 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
-#12 3.257 
-#12 3.257 [notice] A new release of pip is available: 24.0 -> 26.1.1
-#12 3.257 [notice] To update, run: pip install --upgrade pip
-#12 DONE 3.6s
-
-#13 [api 4/5] RUN pip install --no-cache-dir -r requirements.txt
-#13 1.883 Collecting fastapi==0.110.0 (from -r requirements.txt (line 1))
-#13 1.914   Downloading fastapi-0.110.0-py3-none-any.whl.metadata (25 kB)
-#13 1.962 Collecting uvicorn==0.29.0 (from -r requirements.txt (line 2))
-#13 1.970   Downloading uvicorn-0.29.0-py3-none-any.whl.metadata (6.3 kB)
-#13 2.063 Collecting psycopg2-binary==2.9.9 (from -r requirements.txt (line 3))
-#13 2.069   Downloading psycopg2_binary-2.9.9-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.4 kB)
-#13 2.358 Collecting pydantic!=1.8,!=1.8.1,!=2.0.0,!=2.0.1,!=2.1.0,<3.0.0,>=1.7.4 (from fastapi==0.110.0->-r requirements.txt (line 1))
-#13 2.367   Downloading pydantic-2.13.4-py3-none-any.whl.metadata (109 kB)
-#13 2.389      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 109.4/109.4 kB 5.3 MB/s eta 0:00:00
-#13 2.465 Collecting starlette<0.37.0,>=0.36.3 (from fastapi==0.110.0->-r requirements.txt (line 1))
-#13 2.471   Downloading starlette-0.36.3-py3-none-any.whl.metadata (5.9 kB)
-#13 2.518 Collecting typing-extensions>=4.8.0 (from fastapi==0.110.0->-r requirements.txt (line 1))
-#13 2.525   Downloading typing_extensions-4.15.0-py3-none-any.whl.metadata (3.3 kB)
-#13 2.589 Collecting click>=7.0 (from uvicorn==0.29.0->-r requirements.txt (line 2))
-#13 2.597   Downloading click-8.3.3-py3-none-any.whl.metadata (2.6 kB)
-#13 2.628 Collecting h11>=0.8 (from uvicorn==0.29.0->-r requirements.txt (line 2))
-#13 2.637   Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
-#13 2.708 Collecting annotated-types>=0.6.0 (from pydantic!=1.8,!=1.8.1,!=2.0.0,!=2.0.1,!=2.1.0,<3.0.0,>=1.7.4->fastapi==0.110.0->-r requirements.txt (line 1))
-#13 2.712   Downloading annotated_types-0.7.0-py3-none-any.whl.metadata (15 kB)
-#13 ...
-
-#14 [worker 5/5] COPY . .
-#14 DONE 0.0s
-
-#15 [worker] exporting to image
-#15 exporting layers
-#15 exporting layers 1.2s done
-#15 exporting manifest sha256:4d8f2fb3fd025a9f778ef6141073b5ba17375b319a055c6a69b66a3b33dc865b 0.0s done
-#15 exporting config sha256:6ed6009289246404daa5b96be5d4e8e950d6d6f563dc2a87b9747beb491c21c7 done
-#15 exporting attestation manifest sha256:7f027ebb15547d83e16ebeeaa215eb7fdaf8fab016199bef3031e62db4f19d65 0.0s done
-#15 exporting manifest list sha256:e6c22c7df467d4e8d3d70cc218fc33867127c5aabdb78ae39ad1ff8f7884ede1 done
-#15 naming to docker.io/library/ai-logs-analyzer-latest-worker:latest done
-#15 unpacking to docker.io/library/ai-logs-analyzer-latest-worker:latest
-#15 unpacking to docker.io/library/ai-logs-analyzer-latest-worker:latest 0.3s done
-#15 DONE 1.6s
-
-#13 [api 4/5] RUN pip install --no-cache-dir -r requirements.txt
-#13 3.943 Collecting pydantic-core==2.46.4 (from pydantic!=1.8,!=1.8.1,!=2.0.0,!=2.0.1,!=2.1.0,<3.0.0,>=1.7.4->fastapi==0.110.0->-r requirements.txt (line 1))
-#13 3.947   Downloading pydantic_core-2.46.4-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.6 kB)
-#13 3.967 Collecting typing-inspection>=0.4.2 (from pydantic!=1.8,!=1.8.1,!=2.0.0,!=2.0.1,!=2.1.0,<3.0.0,>=1.7.4->fastapi==0.110.0->-r requirements.txt (line 1))
-#13 3.970   Downloading typing_inspection-0.4.2-py3-none-any.whl.metadata (2.6 kB)
-#13 4.014 Collecting anyio<5,>=3.4.0 (from starlette<0.37.0,>=0.36.3->fastapi==0.110.0->-r requirements.txt (line 1))
-#13 4.020   Downloading anyio-4.13.0-py3-none-any.whl.metadata (4.5 kB)
-#13 4.055 Collecting idna>=2.8 (from anyio<5,>=3.4.0->starlette<0.37.0,>=0.36.3->fastapi==0.110.0->-r requirements.txt (line 1))
-#13 4.062   Downloading idna-3.13-py3-none-any.whl.metadata (8.0 kB)
-#13 4.084 Downloading fastapi-0.110.0-py3-none-any.whl (92 kB)
-#13 4.092    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 92.1/92.1 kB 13.9 MB/s eta 0:00:00
-#13 4.097 Downloading uvicorn-0.29.0-py3-none-any.whl (60 kB)
-#13 4.104    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 60.8/60.8 kB 15.9 MB/s eta 0:00:00
-#13 4.108 Downloading psycopg2_binary-2.9.9-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.0 MB)
-#13 4.366    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.0/3.0 MB 11.8 MB/s eta 0:00:00
-#13 4.370 Downloading click-8.3.3-py3-none-any.whl (110 kB)
-#13 4.380    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 110.5/110.5 kB 12.2 MB/s eta 0:00:00
-#13 4.383 Downloading h11-0.16.0-py3-none-any.whl (37 kB)
-#13 4.390 Downloading pydantic-2.13.4-py3-none-any.whl (472 kB)
-#13 4.432    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 472.3/472.3 kB 11.9 MB/s eta 0:00:00
-#13 4.437 Downloading pydantic_core-2.46.4-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.1 MB)
-#13 4.615    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 11.8 MB/s eta 0:00:00
-#13 4.619 Downloading starlette-0.36.3-py3-none-any.whl (71 kB)
-#13 4.626    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 71.5/71.5 kB 12.8 MB/s eta 0:00:00
-#13 4.630 Downloading typing_extensions-4.15.0-py3-none-any.whl (44 kB)
-#13 4.635    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 44.6/44.6 kB 13.8 MB/s eta 0:00:00
-#13 4.639 Downloading annotated_types-0.7.0-py3-none-any.whl (13 kB)
-#13 4.643 Downloading anyio-4.13.0-py3-none-any.whl (114 kB)
-#13 4.655    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 114.4/114.4 kB 12.5 MB/s eta 0:00:00
-#13 4.658 Downloading typing_inspection-0.4.2-py3-none-any.whl (14 kB)
-#13 4.662 Downloading idna-3.13-py3-none-any.whl (68 kB)
-#13 4.669    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 68.6/68.6 kB 13.1 MB/s eta 0:00:00
-#13 4.896 Installing collected packages: typing-extensions, psycopg2-binary, idna, h11, click, annotated-types, uvicorn, typing-inspection, pydantic-core, anyio, starlette, pydantic, fastapi
-#13 5.932 Successfully installed annotated-types-0.7.0 anyio-4.13.0 click-8.3.3 fastapi-0.110.0 h11-0.16.0 idna-3.13 psycopg2-binary-2.9.9 pydantic-2.13.4 pydantic-core-2.46.4 starlette-0.36.3 typing-extensions-4.15.0 typing-inspection-0.4.2 uvicorn-0.29.0
-#13 5.932 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
-#13 6.036 
-#13 6.036 [notice] A new release of pip is available: 24.0 -> 26.1.1
-#13 6.036 [notice] To update, run: pip install --upgrade pip
-#13 DONE 6.6s
-
-#16 [api 5/5] COPY . .
-#16 DONE 0.0s
-
-#17 [api] exporting to image
-#17 exporting layers 1.3s done
-#17 exporting manifest sha256:3ec3453b203cf6c9103ecd1b6e47e3d0d47ed175ffd3c6aba86bf310969db06c done
-#17 exporting config sha256:8583e85cb9467c118c7c5d4b595363aa612dae1d7aaf2297d31395b46f10f06b done
-#17 exporting attestation manifest sha256:87e1be4af319818f24a2086b9c538ebf9a0252ca5e70465cf42974499c33a7e9 0.0s done
-#17 exporting manifest list sha256:c681b7073fd2b87c3a683af99e163ee10682ad7f99a96312207fa9b75ce3b304 done
-#17 naming to docker.io/library/ai-logs-analyzer-latest-api:latest done
-#17 unpacking to docker.io/library/ai-logs-analyzer-latest-api:latest
-#17 unpacking to docker.io/library/ai-logs-analyzer-latest-api:latest 0.4s done
-#17 DONE 1.8s
+15:56:49  + cd /var/jenkins_home/workspace/ai-logs-analyzer-latest
+15:56:49  + docker compose build --no-cache
+15:56:49  time="2026-05-12T10:26:49Z" level=warning msg="/var/jenkins_home/workspace/ai-logs-analyzer-latest/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+15:56:50  #0 building with "multi-builder" instance using docker-container driver
+15:56:50  
+15:56:50  #1 [api internal] load build definition from Dockerfile
+15:56:50  #1 transferring dockerfile: 228B 0.0s done
+15:56:50  #1 DONE 0.1s
+15:56:50  
+15:56:50  #2 [worker internal] load build definition from Dockerfile
+15:56:50  #2 transferring dockerfile: 189B 0.0s done
+15:56:50  #2 DONE 0.1s
+15:56:50  
+15:56:50  #3 [worker internal] load metadata for docker.io/library/python:3.11-slim
+15:56:51  #3 ...
+15:56:51  
+15:56:51  #4 [api auth] library/python:pull token for registry-1.docker.io
+15:56:51  #4 DONE 0.0s
+15:56:51  
+15:56:51  #3 [worker internal] load metadata for docker.io/library/python:3.11-slim
+15:56:51  #3 DONE 1.5s
+15:56:51  
+15:56:51  #5 [api internal] load .dockerignore
+15:56:51  #5 transferring context: 2B done
+15:56:51  #5 DONE 0.0s
+15:56:51  
+15:56:51  #6 [worker internal] load .dockerignore
+15:56:51  #6 transferring context: 2B 0.0s done
+15:56:51  #6 DONE 0.0s
+15:56:51  
+15:56:51  #7 [worker 1/5] FROM docker.io/library/python:3.11-slim@sha256:a5b427ace4900267d93db34138e512325c6fa6af84ad5e4ed5f3b36258cc4142
+15:56:51  #7 resolve docker.io/library/python:3.11-slim@sha256:a5b427ace4900267d93db34138e512325c6fa6af84ad5e4ed5f3b36258cc4142 0.0s done
+15:56:51  #7 DONE 0.0s
+15:56:51  
+15:56:51  #8 [worker internal] load build context
+15:56:51  #8 transferring context: 96B done
+15:56:51  #8 DONE 0.0s
+15:56:51  
+15:56:51  #9 [api internal] load build context
+15:56:51  #9 transferring context: 124B done
+15:56:51  #9 DONE 0.1s
+15:56:51  
+15:56:51  #10 [worker 2/5] WORKDIR /app
+15:56:51  #10 CACHED
+15:56:51  
+15:56:51  #11 [worker 3/5] COPY requirements.txt .
+15:56:51  #11 DONE 0.2s
+15:56:51  
+15:56:51  #12 [api 3/5] COPY requirements.txt .
+15:56:52  #12 DONE 0.3s
+15:56:52  
+15:56:52  #13 [api 4/5] RUN pip install --no-cache-dir -r requirements.txt
+15:56:56  #13 3.865 Collecting fastapi==0.110.0 (from -r requirements.txt (line 1))
+15:56:56  #13 3.905   Downloading fastapi-0.110.0-py3-none-any.whl.metadata (25 kB)
+15:56:56  #13 4.002 Collecting uvicorn==0.29.0 (from -r requirements.txt (line 2))
+15:56:56  #13 4.010   Downloading uvicorn-0.29.0-py3-none-any.whl.metadata (6.3 kB)
+15:56:56  #13 4.183 Collecting psycopg2-binary==2.9.9 (from -r requirements.txt (line 3))
+15:56:56  #13 4.193   Downloading psycopg2_binary-2.9.9-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.4 kB)
+15:56:56  #13 4.799 Collecting pydantic!=1.8,!=1.8.1,!=2.0.0,!=2.0.1,!=2.1.0,<3.0.0,>=1.7.4 (from fastapi==0.110.0->-r requirements.txt (line 1))
+15:56:56  #13 4.807   Downloading pydantic-2.13.4-py3-none-any.whl.metadata (109 kB)
+15:56:56  #13 4.818      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 109.4/109.4 kB 13.8 MB/s eta 0:00:00
+15:56:56  #13 4.926 Collecting starlette<0.37.0,>=0.36.3 (from fastapi==0.110.0->-r requirements.txt (line 1))
+15:56:56  #13 4.933   Downloading starlette-0.36.3-py3-none-any.whl.metadata (5.9 kB)
+15:56:56  #13 4.974 Collecting typing-extensions>=4.8.0 (from fastapi==0.110.0->-r requirements.txt (line 1))
+15:56:57  #13 4.982   Downloading typing_extensions-4.15.0-py3-none-any.whl.metadata (3.3 kB)
+15:56:57  #13 5.057 Collecting click>=7.0 (from uvicorn==0.29.0->-r requirements.txt (line 2))
+15:56:57  #13 5.064   Downloading click-8.3.3-py3-none-any.whl.metadata (2.6 kB)
+15:56:57  #13 5.097 Collecting h11>=0.8 (from uvicorn==0.29.0->-r requirements.txt (line 2))
+15:56:57  #13 5.105   Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+15:56:57  #13 5.224 Collecting annotated-types>=0.6.0 (from pydantic!=1.8,!=1.8.1,!=2.0.0,!=2.0.1,!=2.1.0,<3.0.0,>=1.7.4->fastapi==0.110.0->-r requirements.txt (line 1))
+15:56:57  #13 5.230   Downloading annotated_types-0.7.0-py3-none-any.whl.metadata (15 kB)
+15:56:58  #13 ...
+15:56:58  
+15:56:58  #14 [worker 4/5] RUN pip install --no-cache-dir -r requirements.txt
+15:56:58  #14 3.510 Collecting psycopg2-binary (from -r requirements.txt (line 1))
+15:56:58  #14 3.561   Downloading psycopg2_binary-2.9.12-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (4.9 kB)
+15:56:58  #14 3.713 Collecting requests (from -r requirements.txt (line 2))
+15:56:58  #14 3.725   Downloading requests-2.34.0-py3-none-any.whl.metadata (4.8 kB)
+15:56:58  #14 4.057 Collecting charset_normalizer<4,>=2 (from requests->-r requirements.txt (line 2))
+15:56:58  #14 4.063   Downloading charset_normalizer-3.4.7-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (40 kB)
+15:56:58  #14 4.081      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 40.9/40.9 kB 52.8 MB/s eta 0:00:00
+15:56:58  #14 4.125 Collecting idna<4,>=2.5 (from requests->-r requirements.txt (line 2))
+15:56:58  #14 4.133   Downloading idna-3.14-py3-none-any.whl.metadata (8.0 kB)
+15:56:58  #14 4.257 Collecting urllib3<3,>=1.26 (from requests->-r requirements.txt (line 2))
+15:56:58  #14 4.259   Downloading urllib3-2.7.0-py3-none-any.whl.metadata (6.9 kB)
+15:56:58  #14 4.346 Collecting certifi>=2023.5.7 (from requests->-r requirements.txt (line 2))
+15:56:58  #14 4.353   Downloading certifi-2026.4.22-py3-none-any.whl.metadata (2.5 kB)
+15:56:58  #14 4.397 Downloading psycopg2_binary-2.9.12-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (4.3 MB)
+15:56:58  #14 4.792    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.3/4.3 MB 11.1 MB/s eta 0:00:00
+15:56:58  #14 4.795 Downloading requests-2.34.0-py3-none-any.whl (73 kB)
+15:56:58  #14 4.805    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 73.0/73.0 kB 31.4 MB/s eta 0:00:00
+15:56:58  #14 4.819 Downloading certifi-2026.4.22-py3-none-any.whl (135 kB)
+15:56:58  #14 4.832    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 135.7/135.7 kB 166.0 MB/s eta 0:00:00
+15:56:58  #14 4.844 Downloading charset_normalizer-3.4.7-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (214 kB)
+15:56:58  #14 4.871    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 214.1/214.1 kB 10.9 MB/s eta 0:00:00
+15:56:58  #14 4.885 Downloading idna-3.14-py3-none-any.whl (72 kB)
+15:56:58  #14 4.888    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 72.2/72.2 kB 137.9 MB/s eta 0:00:00
+15:56:58  #14 4.901 Downloading urllib3-2.7.0-py3-none-any.whl (131 kB)
+15:56:58  #14 4.905    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 131.1/131.1 kB 81.2 MB/s eta 0:00:00
+15:56:58  #14 5.085 Installing collected packages: urllib3, psycopg2-binary, idna, charset_normalizer, certifi, requests
+15:56:58  #14 5.980 Successfully installed certifi-2026.4.22 charset_normalizer-3.4.7 idna-3.14 psycopg2-binary-2.9.12 requests-2.34.0 urllib3-2.7.0
+15:56:58  #14 5.981 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+15:56:58  #14 6.185 
+15:56:58  #14 6.185 [notice] A new release of pip is available: 24.0 -> 26.1.1
+15:56:58  #14 6.185 [notice] To update, run: pip install --upgrade pip
+15:56:58  #14 DONE 6.7s
+15:56:58  
+15:56:58  #15 [worker 5/5] COPY . .
+15:56:59  #15 DONE 0.3s
+15:56:59  
+15:56:59  #13 [api 4/5] RUN pip install --no-cache-dir -r requirements.txt
+15:56:59  #13 7.128 Collecting pydantic-core==2.46.4 (from pydantic!=1.8,!=1.8.1,!=2.0.0,!=2.0.1,!=2.1.0,<3.0.0,>=1.7.4->fastapi==0.110.0->-r requirements.txt (line 1))
+15:56:59  #13 7.134   Downloading pydantic_core-2.46.4-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.6 kB)
+15:56:59  #13 7.175 Collecting typing-inspection>=0.4.2 (from pydantic!=1.8,!=1.8.1,!=2.0.0,!=2.0.1,!=2.1.0,<3.0.0,>=1.7.4->fastapi==0.110.0->-r requirements.txt (line 1))
+15:56:59  #13 7.197   Downloading typing_inspection-0.4.2-py3-none-any.whl.metadata (2.6 kB)
+15:56:59  #13 7.349 Collecting anyio<5,>=3.4.0 (from starlette<0.37.0,>=0.36.3->fastapi==0.110.0->-r requirements.txt (line 1))
+15:56:59  #13 7.365   Downloading anyio-4.13.0-py3-none-any.whl.metadata (4.5 kB)
+15:56:59  #13 7.439 Collecting idna>=2.8 (from anyio<5,>=3.4.0->starlette<0.37.0,>=0.36.3->fastapi==0.110.0->-r requirements.txt (line 1))
+15:56:59  #13 7.449   Downloading idna-3.14-py3-none-any.whl.metadata (8.0 kB)
+15:56:59  #13 7.515 Downloading fastapi-0.110.0-py3-none-any.whl (92 kB)
+15:56:59  #13 7.525    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 92.1/92.1 kB 17.3 MB/s eta 0:00:00
+15:56:59  #13 7.531 Downloading uvicorn-0.29.0-py3-none-any.whl (60 kB)
+15:56:59  #13 7.540    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 60.8/60.8 kB 131.5 MB/s eta 0:00:00
+15:56:59  #13 7.542 Downloading psycopg2_binary-2.9.9-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.0 MB)
+15:56:59  #13 7.804    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.0/3.0 MB 11.8 MB/s eta 0:00:00
+15:57:00  #13 7.809 Downloading click-8.3.3-py3-none-any.whl (110 kB)
+15:57:00  #13 7.821    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 110.5/110.5 kB 12.4 MB/s eta 0:00:00
+15:57:00  #13 7.828 Downloading h11-0.16.0-py3-none-any.whl (37 kB)
+15:57:00  #13 7.832 Downloading pydantic-2.13.4-py3-none-any.whl (472 kB)
+15:57:00  #13 7.880    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 472.3/472.3 kB 10.3 MB/s eta 0:00:00
+15:57:00  #13 7.887 Downloading pydantic_core-2.46.4-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.1 MB)
+15:57:00  #13 8.080    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 11.1 MB/s eta 0:00:00
+15:57:00  #13 8.084 Downloading starlette-0.36.3-py3-none-any.whl (71 kB)
+15:57:00  #13 8.093    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 71.5/71.5 kB 171.6 MB/s eta 0:00:00
+15:57:00  #13 8.099 Downloading typing_extensions-4.15.0-py3-none-any.whl (44 kB)
+15:57:00  #13 8.102    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 44.6/44.6 kB 180.5 MB/s eta 0:00:00
+15:57:00  #13 8.112 Downloading annotated_types-0.7.0-py3-none-any.whl (13 kB)
+15:57:00  #13 8.119 Downloading anyio-4.13.0-py3-none-any.whl (114 kB)
+15:57:00  #13 8.133    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 114.4/114.4 kB 26.1 MB/s eta 0:00:00
+15:57:00  #13 8.140 Downloading typing_inspection-0.4.2-py3-none-any.whl (14 kB)
+15:57:00  #13 8.146 Downloading idna-3.14-py3-none-any.whl (72 kB)
+15:57:00  #13 8.157    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 72.2/72.2 kB 166.8 MB/s eta 0:00:00
+15:57:00  #13 8.501 Installing collected packages: typing-extensions, psycopg2-binary, idna, h11, click, annotated-types, uvicorn, typing-inspection, pydantic-core, anyio, starlette, pydantic, fastapi
+15:57:03  #13 11.25 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+15:57:03  #13 11.25 Successfully installed annotated-types-0.7.0 anyio-4.13.0 click-8.3.3 fastapi-0.110.0 h11-0.16.0 idna-3.14 psycopg2-binary-2.9.9 pydantic-2.13.4 pydantic-core-2.46.4 starlette-0.36.3 typing-extensions-4.15.0 typing-inspection-0.4.2 uvicorn-0.29.0
+15:57:03  #13 11.53 
+15:57:03  #13 11.53 [notice] A new release of pip is available: 24.0 -> 26.1.1
+15:57:03  #13 11.53 [notice] To update, run: pip install --upgrade pip
+15:57:05  #13 DONE 12.8s
+15:57:05  
+15:57:05  #16 [worker] exporting to oci image format
+15:57:05  #16 exporting layers 2.5s done
+15:57:05  #16 exporting manifest sha256:7a9bc230fa1d8ed2c68fce1e02fc5b4c9a11af4abc6d20cd113b02f81134c78c 0.0s done
+15:57:05  #16 exporting config sha256:a5f10e2eb84976d94624feb8f0c1b3efd5e300216a7b30a4b796979c6f8f062f 0.1s done
+15:57:05  #16 sending tarball
+15:57:05  #16 ...
+15:57:05  
+15:57:05  #17 [api 5/5] COPY . .
+15:57:05  #17 DONE 0.4s
+15:57:05  
+15:57:05  #18 [api] exporting to oci image format
+15:57:08  #18 exporting layers 2.8s done
+15:57:08  #18 exporting manifest sha256:5e0e5e670c32c0663f2f45b3dc3e4221cd2af23124fbd8d3c725ee631766989d 0.1s done
+15:57:08  #18 exporting config sha256:4b7ced6683c582e578bc41d9ef414588363dec8899726397c79fe11bb68ae12a 0.1s done
+15:57:08  #18 sending tarball
+15:57:09  #18 ...
+15:57:09  
+15:57:09  #16 [worker] exporting to oci image format
+15:57:09  #16 sending tarball 7.2s done
+15:57:09  #16 DONE 9.8s
+15:57:09  
+15:57:09  #19 [worker] importing to docker
+15:57:09  #19 DONE 0.0s
+15:57:09  
+15:57:09  #18 [api] exporting to oci image format
+15:57:13  #18 ...
+15:57:13  
+15:57:13  #20 [api] importing to docker
+15:57:13  #20 DONE 0.0s
+15:57:13  
+15:57:13  #18 [api] exporting to oci image format
+15:57:13  #18 sending tarball 4.8s done
+15:57:13  #18 DONE 7.8s
 [Pipeline] }
 [Pipeline] // stage
 [Pipeline] stage
 [Pipeline] { (Start Services)
 [Pipeline] echo
-Starting services with docker-compose...
+15:57:13  Starting services with docker-compose...
 [Pipeline] sh
-+ cd /var/jenkins_home/workspace/ai-logs-analyzer-latest
-+ 
-+ docker-compose up -d
-+ command -v docker-compose
-/usr/bin/docker-compose
-time="2026-05-09T15:49:24Z" level=warning msg="/var/jenkins_home/workspace/ai-logs-analyzer-latest/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
- Network ai-logs-analyzer-latest_default  Creating
- Network ai-logs-analyzer-latest_default  Created
- Volume "ai-logs-analyzer-latest_pgdata"  Creating
- Volume "ai-logs-analyzer-latest_pgdata"  Created
- Container postgres  Creating
- Container postgres  Created
- Container worker-service  Creating
- Container api-service  Creating
- Container worker-service  Created
- Container api-service  Created
- Container postgres  Starting
- Container postgres  Started
- Container worker-service  Starting
- Container api-service  Starting
- Container api-service  Started
- Container worker-service  Started
-+ echo Waiting for services to be ready...
-Waiting for services to be ready...
-+ sleep 5
+15:57:14  + cd /var/jenkins_home/workspace/ai-logs-analyzer-latest
+15:57:14  + docker network inspect ai_logs_net
+15:57:14  + docker compose up -d
+15:57:14  time="2026-05-12T10:27:14Z" level=warning msg="/var/jenkins_home/workspace/ai-logs-analyzer-latest/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+15:57:14   Volume "ai-logs-analyzer-latest_pgdata"  Creating
+15:57:14   Volume "ai-logs-analyzer-latest_pgdata"  Created
+15:57:14   Container postgres  Creating
+15:57:16   Container postgres  Created
+15:57:16   Container api-service  Creating
+15:57:16   Container worker-service  Creating
+15:57:16   Container worker-service  Created
+15:57:16   Container api-service  Created
+15:57:16   Container postgres  Starting
+15:57:17   Container postgres  Started
+15:57:17   Container postgres  Waiting
+15:57:17   Container postgres  Waiting
+15:57:24   Container postgres  Healthy
+15:57:24   Container api-service  Starting
+15:57:24   Container postgres  Healthy
+15:57:24   Container worker-service  Starting
+15:57:24   Container worker-service  Started
+15:57:24   Container api-service  Started
+15:57:24  + echo Waiting for services to be ready...
+15:57:24  Waiting for services to be ready...
+15:57:24  + sleep 5
 [Pipeline] }
 [Pipeline] // stage
 [Pipeline] stage
 [Pipeline] { (Health Checks & Tests)
 [Pipeline] echo
-Running health checks and tests...
+15:57:29  Running health checks and tests...
 [Pipeline] sh
-+ cd /var/jenkins_home/workspace/ai-logs-analyzer-latest
-+ echo Running integration tests...
-Running integration tests...
-+ python3 tests/test_api.py
-
-==================================================
-AI Log Analyzer - Integration Tests
-==================================================
-
---- Testing API Health ---
-  Attempt 1/10 - Waiting for service...
-  Attempt 2/10 - Waiting for service...
-  Attempt 3/10 - Waiting for service...
-  Attempt 4/10 - Waiting for service...
-  Attempt 5/10 - Waiting for service...
-  Attempt 6/10 - Waiting for service...
-  Attempt 7/10 - Waiting for service...
-  Attempt 8/10 - Waiting for service...
-  Attempt 9/10 - Waiting for service...
-✗ API Health Check: API did not respond within timeout
-  ERROR: API did not respond within timeout
-
---- Testing Database Connectivity ---
-✗ Database Connectivity: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /logs (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connection: [Errno 111] Connection refused"))
-  ERROR: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /logs (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connection: [Errno 111] Connection refused"))
-
---- Testing Log Creation ---
-✗ Create Log: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /logs (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connection: [Errno 111] Connection refused"))
-  ERROR: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /logs (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connection: [Errno 111] Connection refused"))
-
---- Testing Log Retrieval ---
-✗ Retrieve Logs: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /logs?limit=5 (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connection: [Errno 111] Connection refused"))
-  ERROR: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /logs?limit=5 (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connection: [Errno 111] Connection refused"))
-
---- Testing Different Log Levels ---
-✗ Log Level: DEBUG: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /logs (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connection: [Errno 111] Connection refused"))
-  ERROR: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /logs (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connection: [Errno 111] Connection refused"))
-✗ Log Level: INFO: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /logs (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connection: [Errno 111] Connection refused"))
-  ERROR: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /logs (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connection: [Errno 111] Connection refused"))
-✗ Log Level: WARNING: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /logs (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connection: [Errno 111] Connection refused"))
-  ERROR: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /logs (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connection: [Errno 111] Connection refused"))
-✗ Log Level: ERROR: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /logs (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connection: [Errno 111] Connection refused"))
-  ERROR: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /logs (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connection: [Errno 111] Connection refused"))
-✗ Log Level: CRITICAL: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /logs (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connection: [Errno 111] Connection refused"))
-  ERROR: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /logs (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connection: [Errno 111] Connection refused"))
-
-==================================================
-Test Summary
-==================================================
-Tests Passed: 0/5
-✗ Some tests failed!
+15:57:29  + cd /var/jenkins_home/workspace/ai-logs-analyzer-latest
+15:57:29  + PREF_NET=ai-logs-analyzer-latest_ai_logs_net
+15:57:29  + docker network inspect ai-logs-analyzer-latest_ai_logs_net
+15:57:29  + docker network inspect ai_logs_net
+15:57:29  + docker network connect ai_logs_net jenkins-lab
+15:57:29  Error response from daemon: endpoint with name jenkins-lab already exists in network ai_logs_net
+15:57:29  + true
+15:57:29  + echo Waiting for services to reach healthy state...
+15:57:29  Waiting for services to reach healthy state...
+15:57:29  + python3 /var/jenkins_home/workspace/ai-logs-analyzer-latest/scripts/wait_for_services.py
+15:57:29  2026-05-12T10:27:29+0000 INFO wait_for_services:32 - ✓ API service is ready on api-service:8000!
+15:57:29  2026-05-12T10:27:29+0000 INFO wait_for_services:32 - ✓ Database service is ready on postgres:5432!
+15:57:29  2026-05-12T10:27:29+0000 INFO wait_for_services:47 - ✓ All services are ready!
+15:57:29  + echo Running integration tests...
+15:57:29  Running integration tests...
+15:57:29  + API_URL=http://api-service:8000 python3 tests/test_api.py
+15:57:47  
+15:57:47  ==================================================
+15:57:47  AI Log Analyzer - Integration Tests
+15:57:47  ==================================================
+15:57:47  
+15:57:47  --- Testing API Health ---
+15:57:47  ✓ API Health Check: Status: 200
+15:57:47  
+15:57:47  --- Testing Database Connectivity ---
+15:57:47  ✓ Database Connectivity: Status: 200
+15:57:47  
+15:57:47  --- Testing Log Creation ---
+15:57:47  ✓ Create Log: Status: 200
+15:57:47  
+15:57:47  --- Testing Log Retrieval ---
+15:57:47  ✓ Retrieve Logs: Retrieved 2 logs
+15:57:47  
+15:57:47  --- Testing Different Log Levels ---
+15:57:47  ✓ Log Level: DEBUG: Status: 200
+15:57:47  ✓ Log Level: INFO: Status: 200
+15:57:47  ✓ Log Level: WARNING: Status: 200
+15:57:47  ✓ Log Level: ERROR: Status: 200
+15:57:47  ✓ Log Level: CRITICAL: Status: 200
+15:57:47  
+15:57:47  --- Testing Log Analysis (LLM) ---
+15:57:47    Waiting for worker to analyze logs (15 seconds)...
+15:57:47      10 seconds remaining...
+15:57:47      5 seconds remaining...
+15:57:47  ✓ Log Analysis: Found 8 analyzed logs with LLM insights
+15:57:47      Sample analysis (first 100 chars): [MOCK ANALYSIS - LLM unavailable]
+15:57:47  Service: analysis-test
+15:57:47  Log Level: ERROR
+15:57:47  Severity: HIGH
+15:57:47  Message: Te...
+15:57:47  
+15:57:47  ==================================================
+15:57:47  Test Summary
+15:57:47  ==================================================
+15:57:47  Tests Passed: 6/6
+15:57:47  ✓ All tests passed!
+15:57:47  + echo ✓ All tests passed!
+15:57:47  ✓ All tests passed!
 [Pipeline] }
 [Pipeline] // stage
 [Pipeline] stage
 [Pipeline] { (View Logs)
-Stage "View Logs" skipped due to earlier failure(s)
-[Pipeline] getContext
+[Pipeline] echo
+15:57:48  Service logs for debugging (if needed)...
+[Pipeline] sh
+15:57:48  + cd /var/jenkins_home/workspace/ai-logs-analyzer-latest
+15:57:48  + echo === API Service Logs ===
+15:57:48  === API Service Logs ===
+15:57:48  + docker compose logs api
+15:57:48  time="2026-05-12T10:27:48Z" level=warning msg="/var/jenkins_home/workspace/ai-logs-analyzer-latest/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+15:57:48  [2Kapi-service  | INFO:     Started server process [1]
+15:57:48  [2Kapi-service  | INFO:     Waiting for application startup.
+15:57:48  [2Kapi-service  | ✓ Database tables initialized successfully
+15:57:48  [2Kapi-service  | INFO:     Application startup complete.
+15:57:48  [2Kapi-service  | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+15:57:48  [2Kapi-service  | INFO:     172.18.0.2:53540 - "GET /health HTTP/1.1" 200 OK
+15:57:48  [2Kapi-service  | INFO:     172.18.0.2:53554 - "GET /health HTTP/1.1" 200 OK
+15:57:48  [2Kapi-service  | INFO:     172.18.0.2:53568 - "POST /logs HTTP/1.1" 200 OK
+15:57:48  [2Kapi-service  | INFO:     172.18.0.2:53574 - "POST /logs HTTP/1.1" 200 OK
+15:57:48  [2Kapi-service  | INFO:     172.18.0.2:53590 - "GET /logs?limit=5 HTTP/1.1" 200 OK
+15:57:48  [2Kapi-service  | INFO:     172.18.0.2:53594 - "POST /logs HTTP/1.1" 200 OK
+15:57:48  [2Kapi-service  | INFO:     172.18.0.2:53596 - "POST /logs HTTP/1.1" 200 OK
+15:57:48  [2Kapi-service  | INFO:     172.18.0.2:53608 - "POST /logs HTTP/1.1" 200 OK
+15:57:48  [2Kapi-service  | INFO:     172.18.0.2:53614 - "POST /logs HTTP/1.1" 200 OK
+15:57:48  [2Kapi-service  | INFO:     172.18.0.2:53626 - "POST /logs HTTP/1.1" 200 OK
+15:57:48  [2Kapi-service  | INFO:     172.18.0.2:53634 - "POST /logs HTTP/1.1" 200 OK
+15:57:48  [2Kapi-service  | INFO:     172.18.0.2:58666 - "GET /logs?analyzed=true&limit=10 HTTP/1.1" 200 OK
+15:57:48  + echo 
+15:57:48  
+15:57:48  + echo === Worker Service Logs ===
+15:57:48  === Worker Service Logs ===
+15:57:48  + docker compose logs worker
+15:57:48  time="2026-05-12T10:27:48Z" level=warning msg="/var/jenkins_home/workspace/ai-logs-analyzer-latest/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+15:57:48  + echo 
+15:57:48  
+15:57:48  + echo === Database Logs ===
+15:57:48  === Database Logs ===
+15:57:48  + docker compose logs postgres
+15:57:49  time="2026-05-12T10:27:49Z" level=warning msg="/var/jenkins_home/workspace/ai-logs-analyzer-latest/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+15:57:49  [2Kpostgres  | The files belonging to this database system will be owned by user "postgres".
+15:57:49  [2Kpostgres  | This user must also own the server process.
+15:57:49  [2Kpostgres  | 
+15:57:49  [2Kpostgres  | The database cluster will be initialized with locale "en_US.utf8".
+15:57:49  [2Kpostgres  | The default database encoding has accordingly been set to "UTF8".
+15:57:49  [2Kpostgres  | The default text search configuration will be set to "english".
+15:57:49  [2Kpostgres  | 
+15:57:49  [2Kpostgres  | Data page checksums are disabled.
+15:57:49  [2Kpostgres  | 
+15:57:49  [2Kpostgres  | fixing permissions on existing directory /var/lib/postgresql/data ... ok
+15:57:49  [2Kpostgres  | creating subdirectories ... ok
+15:57:49  [2Kpostgres  | selecting dynamic shared memory implementation ... posix
+15:57:49  [2Kpostgres  | selecting default max_connections ... 100
+15:57:49  [2Kpostgres  | selecting default shared_buffers ... 128MB
+15:57:49  [2Kpostgres  | selecting default time zone ... Etc/UTC
+15:57:49  [2Kpostgres  | creating configuration files ... ok
+15:57:49  [2Kpostgres  | running bootstrap script ... ok
+15:57:49  [2Kpostgres  | performing post-bootstrap initialization ... ok
+15:57:49  [2Kpostgres  | syncing data to disk ... ok
+15:57:49  [2Kpostgres  | 
+15:57:49  [2Kpostgres  | 
+15:57:49  [2Kpostgres  | Success. You can now start the database server using:
+15:57:49  [2Kpostgres  | 
+15:57:49  [2Kpostgres  |     pg_ctl -D /var/lib/postgresql/data -l logfile start
+15:57:49  [2Kpostgres  | 
+15:57:49  [2Kpostgres  | initdb: warning: enabling "trust" authentication for local connections
+15:57:49  [2Kpostgres  | initdb: hint: You can change this by editing pg_hba.conf or using the option -A, or --auth-local and --auth-host, the next time you run initdb.
+15:57:49  [2Kpostgres  | waiting for server to start....2026-05-12 10:27:19.416 UTC [48] LOG:  starting PostgreSQL 15.17 (Debian 15.17-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+15:57:49  [2Kpostgres  | 2026-05-12 10:27:19.436 UTC [48] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+15:57:49  [2Kpostgres  | 2026-05-12 10:27:19.454 UTC [51] LOG:  database system was shut down at 2026-05-12 10:27:18 UTC
+15:57:49  [2Kpostgres  | 2026-05-12 10:27:19.466 UTC [48] LOG:  database system is ready to accept connections
+15:57:49  [2Kpostgres  |  done
+15:57:49  [2Kpostgres  | server started
+15:57:49  [2Kpostgres  | CREATE DATABASE
+15:57:49  [2Kpostgres  | 
+15:57:49  [2Kpostgres  | 
+15:57:49  [2Kpostgres  | /usr/local/bin/docker-entrypoint.sh: ignoring /docker-entrypoint-initdb.d/*
+15:57:49  [2Kpostgres  | 
+15:57:49  [2Kpostgres  | waiting for server to shut down....2026-05-12 10:27:19.747 UTC [48] LOG:  received fast shutdown request
+15:57:49  [2Kpostgres  | 2026-05-12 10:27:19.756 UTC [48] LOG:  aborting any active transactions
+15:57:49  [2Kpostgres  | 2026-05-12 10:27:19.760 UTC [48] LOG:  background worker "logical replication launcher" (PID 54) exited with exit code 1
+15:57:49  [2Kpostgres  | 2026-05-12 10:27:19.761 UTC [49] LOG:  shutting down
+15:57:49  [2Kpostgres  | 2026-05-12 10:27:19.764 UTC [49] LOG:  checkpoint starting: shutdown immediate
+15:57:49  [2Kpostgres  | 2026-05-12 10:27:20.004 UTC [49] LOG:  checkpoint complete: wrote 922 buffers (5.6%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.111 s, sync=0.104 s, total=0.244 s; sync files=301, longest=0.028 s, average=0.001 s; distance=4239 kB, estimate=4239 kB
+15:57:49  [2Kpostgres  | 2026-05-12 10:27:20.014 UTC [48] LOG:  database system is shut down
+15:57:49  [2Kpostgres  |  done
+15:57:49  [2Kpostgres  | server stopped
+15:57:49  [2Kpostgres  | 
+15:57:49  [2Kpostgres  | PostgreSQL init process complete; ready for start up.
+15:57:49  [2Kpostgres  | 
+15:57:49  [2Kpostgres  | 2026-05-12 10:27:20.092 UTC [1] LOG:  starting PostgreSQL 15.17 (Debian 15.17-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+15:57:49  [2Kpostgres  | 2026-05-12 10:27:20.092 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+15:57:49  [2Kpostgres  | 2026-05-12 10:27:20.092 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+15:57:49  [2Kpostgres  | 2026-05-12 10:27:20.102 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+15:57:49  [2Kpostgres  | 2026-05-12 10:27:20.114 UTC [64] LOG:  database system was shut down at 2026-05-12 10:27:19 UTC
+15:57:49  [2Kpostgres  | 2026-05-12 10:27:20.123 UTC [1] LOG:  database system is ready to accept connections
+15:57:49  [2Kpostgres  | 2026-05-12 10:27:24.114 UTC [75] ERROR:  relation "logs" does not exist at character 67
+15:57:49  [2Kpostgres  | 2026-05-12 10:27:24.114 UTC [75] STATEMENT:  
+15:57:49  [2Kpostgres  | 	            SELECT id, service, level, message 
+15:57:49  [2Kpostgres  | 	            FROM logs 
+15:57:49  [2Kpostgres  | 	            WHERE analyzed = false
+15:57:49  [2Kpostgres  | 	            LIMIT 5
+15:57:49  [2Kpostgres  | 	        
 [Pipeline] }
 [Pipeline] // stage
 [Pipeline] stage
 [Pipeline] { (Cleanup Local Services)
-Stage "Cleanup Local Services" skipped due to earlier failure(s)
-[Pipeline] getContext
+[Pipeline] echo
+15:57:49  Shutting down docker-compose services...
+[Pipeline] sh
+15:57:50  + cd /var/jenkins_home/workspace/ai-logs-analyzer-latest
+15:57:50  + docker compose down -v
+15:57:50  time="2026-05-12T10:27:49Z" level=warning msg="/var/jenkins_home/workspace/ai-logs-analyzer-latest/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+15:57:50   Container worker-service  Stopping
+15:57:50   Container api-service  Stopping
+15:57:51   Container api-service  Stopped
+15:57:51   Container api-service  Removing
+15:57:51   Container api-service  Removed
+15:58:01   Container worker-service  Stopped
+15:58:01   Container worker-service  Removing
+15:58:01   Container worker-service  Removed
+15:58:01   Container postgres  Stopping
+15:58:01   Container postgres  Stopped
+15:58:01   Container postgres  Removing
+15:58:01   Container postgres  Removed
+15:58:01   Volume ai-logs-analyzer-latest_pgdata  Removing
+15:58:01   Volume ai-logs-analyzer-latest_pgdata  Removed
 [Pipeline] }
 [Pipeline] // stage
 [Pipeline] stage
 [Pipeline] { (Build Multi-Arch Images)
-Stage "Build Multi-Arch Images" skipped due to earlier failure(s)
-[Pipeline] getContext
+[Pipeline] echo
+15:58:02  Building multi-architecture Docker images (AMD64 + ARM64)...
+[Pipeline] sh
+15:58:02  + set -euo pipefail
+15:58:02  + cd /var/jenkins_home/workspace/ai-logs-analyzer-latest
+15:58:02  + docker buildx version
+15:58:02  + docker buildx inspect multi-builder
+15:58:03  + docker run --privileged --rm tonistiigi/binfmt:latest --install all
+15:58:04  {
+15:58:04    "supported": [
+15:58:04      "linux/amd64",
+15:58:04      "linux/amd64/v2",
+15:58:04      "linux/amd64/v3",
+15:58:04      "linux/arm64",
+15:58:04      "linux/riscv64",
+15:58:04      "linux/ppc64le",
+15:58:04      "linux/s390x",
+15:58:04      "linux/386",
+15:58:04      "linux/mips64le",
+15:58:04      "linux/mips64",
+15:58:04      "linux/loong64",
+15:58:04      "linux/arm/v7",
+15:58:04      "linux/arm/v6"
+15:58:04    ],
+15:58:04    "emulators": [
+15:58:04      "python3.10",
+15:58:04      "qemu-aarch64",
+15:58:04      "qemu-arm",
+15:58:04      "qemu-loongarch64",
+15:58:04      "qemu-mips64",
+15:58:04      "qemu-mips64el",
+15:58:04      "qemu-ppc64le",
+15:58:04      "qemu-riscv64",
+15:58:04      "qemu-s390x"
+15:58:04    ]
+15:58:04  }
+15:58:05  + docker buildx inspect --bootstrap
+15:58:05  Name:          multi-builder
+15:58:05  Driver:        docker-container
+15:58:05  Last Activity: 2026-05-12 09:43:55 +0000 UTC
+15:58:05  
+15:58:05  Nodes:
+15:58:05  Name:                  multi-builder0
+15:58:05  Endpoint:              unix:///var/run/docker.sock
+15:58:05  Status:                running
+15:58:05  BuildKit daemon flags: --allow-insecure-entitlement=network.host
+15:58:05  BuildKit version:      v0.29.0
+15:58:05  Platforms:             linux/amd64, linux/amd64/v2, linux/amd64/v3, linux/arm64, linux/riscv64, linux/ppc64le, linux/s390x, linux/386, linux/mips64le, linux/mips64, linux/loong64, linux/arm/v7, linux/arm/v6
+15:58:05  Labels:
+15:58:05   org.mobyproject.buildkit.worker.executor:         oci
+15:58:05   org.mobyproject.buildkit.worker.hostname:         1bf1a88c8714
+15:58:05   org.mobyproject.buildkit.worker.network:          host
+15:58:05   org.mobyproject.buildkit.worker.oci.process-mode: sandbox
+15:58:05   org.mobyproject.buildkit.worker.selinux.enabled:  false
+15:58:05   org.mobyproject.buildkit.worker.snapshotter:      overlayfs
+15:58:05  GC Policy rule#0:
+15:58:05   All:           false
+15:58:05   Filters:       type==source.local,type==exec.cachemount,type==source.git.checkout
+15:58:05   Keep Duration: 48h0m0s
+15:58:05  GC Policy rule#1:
+15:58:05   All:           false
+15:58:05   Keep Duration: 1440h0m0s
+15:58:05   Keep Bytes:    9.313GiB
+15:58:05  GC Policy rule#2:
+15:58:05   All:        false
+15:58:05   Keep Bytes: 9.313GiB
+15:58:05  GC Policy rule#3:
+15:58:05   All:        true
+15:58:05   Keep Bytes: 9.313GiB
+15:58:05  + echo Authenticating to Docker Hub...
+15:58:05  Authenticating to Docker Hub...
+15:58:05  + echo ****
+15:58:05  + docker login -u pawambust --password-stdin docker.io
+15:58:07  WARNING! Your password will be stored unencrypted in /root/.docker/config.json.
+15:58:07  Configure a credential helper to remove this warning. See
+15:58:07  https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+15:58:07  
+15:58:07  Login Succeeded
+15:58:07  + echo Building API image for amd64,arm64...
+15:58:07  Building API image for amd64,arm64...
+15:58:07  + docker buildx build --platform linux/amd64,linux/arm64 -t docker.io/pawambust/ai-log-analyzer-api:0.1 -t docker.io/pawambust/ai-log-analyzer-api:latest --push -f ./api/Dockerfile ./api
+15:58:08  #0 building with "multi-builder" instance using docker-container driver
+15:58:08  
+15:58:08  #1 [internal] load build definition from Dockerfile
+15:58:08  #1 transferring dockerfile: 228B 0.0s done
+15:58:08  #1 DONE 0.1s
+15:58:08  
+15:58:08  #2 [linux/amd64 internal] load metadata for docker.io/library/python:3.11-slim
+15:58:09  #2 ...
+15:58:09  
+15:58:09  #3 [linux/arm64 internal] load metadata for docker.io/library/python:3.11-slim
+15:58:09  #3 DONE 0.9s
+15:58:09  
+15:58:09  #4 [internal] load .dockerignore
+15:58:09  #4 transferring context: 2B done
+15:58:09  #4 DONE 0.0s
+15:58:09  
+15:58:09  #2 [linux/amd64 internal] load metadata for docker.io/library/python:3.11-slim
+15:58:09  #2 DONE 1.0s
+15:58:09  
+15:58:09  #5 [internal] load build context
+15:58:09  #5 transferring context: 124B done
+15:58:09  #5 DONE 0.0s
+15:58:09  
+15:58:09  #6 [linux/amd64 1/5] FROM docker.io/library/python:3.11-slim@sha256:a5b427ace4900267d93db34138e512325c6fa6af84ad5e4ed5f3b36258cc4142
+15:58:09  #6 resolve docker.io/library/python:3.11-slim@sha256:a5b427ace4900267d93db34138e512325c6fa6af84ad5e4ed5f3b36258cc4142 0.1s done
+15:58:09  #6 DONE 0.2s
+15:58:09  
+15:58:09  #7 [linux/amd64 4/5] RUN pip install --no-cache-dir -r requirements.txt
+15:58:09  #7 CACHED
+15:58:09  
+15:58:09  #8 [linux/amd64 3/5] COPY requirements.txt .
+15:58:09  #8 CACHED
+15:58:09  
+15:58:09  #9 [linux/amd64 2/5] WORKDIR /app
+15:58:09  #9 CACHED
+15:58:09  
+15:58:09  #10 [linux/amd64 5/5] COPY . .
+15:58:09  #10 CACHED
+15:58:09  
+15:58:09  #11 [linux/arm64 1/5] FROM docker.io/library/python:3.11-slim@sha256:a5b427ace4900267d93db34138e512325c6fa6af84ad5e4ed5f3b36258cc4142
+15:58:09  #11 resolve docker.io/library/python:3.11-slim@sha256:a5b427ace4900267d93db34138e512325c6fa6af84ad5e4ed5f3b36258cc4142 0.2s done
+15:58:09  #11 DONE 0.2s
+15:58:09  
+15:58:09  #12 [linux/arm64 4/5] RUN pip install --no-cache-dir -r requirements.txt
+15:58:09  #12 CACHED
+15:58:09  
+15:58:09  #13 [linux/arm64 3/5] COPY requirements.txt .
+15:58:09  #13 CACHED
+15:58:09  
+15:58:09  #14 [linux/arm64 2/5] WORKDIR /app
+15:58:09  #14 CACHED
+15:58:09  
+15:58:09  #15 [linux/arm64 5/5] COPY . .
+15:58:09  #15 CACHED
+15:58:09  
+15:58:09  #16 exporting to image
+15:58:09  #16 exporting layers done
+15:58:09  #16 exporting manifest sha256:edd0aff349c7d435751d15e4e35ffe4f081cff4b7d1a752998433367677c4cbb 0.0s done
+15:58:09  #16 exporting config sha256:1ae66f642977365af7d6639b35630b97138d6c604798c99fb607d7688e0784de 0.1s done
+15:58:09  #16 exporting attestation manifest sha256:4675cbd0e7f3d152254585cb402520bb22f0ddc190a887a56851607ba7fb0c52 0.1s done
+15:58:09  #16 exporting manifest sha256:f1d5f8211da6f8b3516bb1ebe00c233fe75061b674e787294b24e24376fdc77c 0.0s done
+15:58:09  #16 exporting config sha256:1ee90456af2ddab5fd970efd5896dbc41672096a5c93767648083160d8289756 done
+15:58:09  #16 exporting attestation manifest sha256:96192fd911918a7be2bb3f6d5c347b810a3bd4ec58a1fdd8516ce3341e5a18f9
+15:58:09  #16 exporting attestation manifest sha256:96192fd911918a7be2bb3f6d5c347b810a3bd4ec58a1fdd8516ce3341e5a18f9 0.2s done
+15:58:10  #16 exporting manifest list sha256:e32bbe448203a2fffdf4bcf5d47dc993db2b88ab8bb7df21ab4bb0b13b80016f 0.1s done
+15:58:10  #16 pushing layers
+15:58:10  #16 ...
+15:58:10  
+15:58:10  #17 [auth] pawambust/ai-log-analyzer-api:pull,push token for registry-1.docker.io
+15:58:10  #17 DONE 0.0s
+15:58:10  
+15:58:10  #16 exporting to image
+15:58:32  #16 pushing layers 20.9s done
+15:58:32  #16 pushing manifest for docker.io/pawambust/ai-log-analyzer-api:0.1@sha256:e32bbe448203a2fffdf4bcf5d47dc993db2b88ab8bb7df21ab4bb0b13b80016f
+15:58:37  #16 pushing manifest for docker.io/pawambust/ai-log-analyzer-api:0.1@sha256:e32bbe448203a2fffdf4bcf5d47dc993db2b88ab8bb7df21ab4bb0b13b80016f 5.9s done
+15:58:37  #16 pushing layers
+15:58:38  #16 pushing layers 1.5s done
+15:58:38  #16 pushing manifest for docker.io/pawambust/ai-log-analyzer-api:latest@sha256:e32bbe448203a2fffdf4bcf5d47dc993db2b88ab8bb7df21ab4bb0b13b80016f
+15:58:41  #16 pushing manifest for docker.io/pawambust/ai-log-analyzer-api:latest@sha256:e32bbe448203a2fffdf4bcf5d47dc993db2b88ab8bb7df21ab4bb0b13b80016f 3.5s done
+15:58:41  #16 DONE 32.3s
+15:58:42  + echo Building Worker image for amd64,arm64...
+15:58:42  Building Worker image for amd64,arm64...
+15:58:42  + docker buildx build --platform linux/amd64,linux/arm64 -t docker.io/pawambust/ai-log-analyzer-worker:0.1 -t docker.io/pawambust/ai-log-analyzer-worker:latest --push -f ./worker/Dockerfile ./worker
+15:58:43  #0 building with "multi-builder" instance using docker-container driver
+15:58:43  
+15:58:43  #1 [internal] load build definition from Dockerfile
+15:58:43  #1 transferring dockerfile: 189B 0.0s done
+15:58:43  #1 DONE 0.0s
+15:58:43  
+15:58:43  #2 [linux/amd64 internal] load metadata for docker.io/library/python:3.11-slim
+15:58:43  #2 ...
+15:58:43  
+15:58:43  #3 [linux/arm64 internal] load metadata for docker.io/library/python:3.11-slim
+15:58:43  #3 DONE 0.4s
+15:58:43  
+15:58:43  #2 [linux/amd64 internal] load metadata for docker.io/library/python:3.11-slim
+15:58:43  #2 DONE 0.4s
+15:58:43  
+15:58:43  #4 [internal] load .dockerignore
+15:58:43  #4 transferring context: 2B done
+15:58:43  #4 DONE 0.0s
+15:58:43  
+15:58:43  #5 [internal] load build context
+15:58:43  #5 transferring context: 96B done
+15:58:43  #5 DONE 0.0s
+15:58:43  
+15:58:43  #6 [linux/amd64 1/5] FROM docker.io/library/python:3.11-slim@sha256:a5b427ace4900267d93db34138e512325c6fa6af84ad5e4ed5f3b36258cc4142
+15:58:43  #6 resolve docker.io/library/python:3.11-slim@sha256:a5b427ace4900267d93db34138e512325c6fa6af84ad5e4ed5f3b36258cc4142 0.1s done
+15:58:43  #6 DONE 0.1s
+15:58:43  
+15:58:43  #7 [linux/amd64 4/5] RUN pip install --no-cache-dir -r requirements.txt
+15:58:43  #7 CACHED
+15:58:43  
+15:58:43  #8 [linux/amd64 2/5] WORKDIR /app
+15:58:43  #8 CACHED
+15:58:43  
+15:58:43  #9 [linux/amd64 3/5] COPY requirements.txt .
+15:58:43  #9 CACHED
+15:58:43  
+15:58:43  #10 [linux/amd64 5/5] COPY . .
+15:58:43  #10 CACHED
+15:58:43  
+15:58:43  #11 [linux/arm64 1/5] FROM docker.io/library/python:3.11-slim@sha256:a5b427ace4900267d93db34138e512325c6fa6af84ad5e4ed5f3b36258cc4142
+15:58:43  #11 resolve docker.io/library/python:3.11-slim@sha256:a5b427ace4900267d93db34138e512325c6fa6af84ad5e4ed5f3b36258cc4142 0.1s done
+15:58:43  #11 DONE 0.1s
+15:58:43  
+15:58:43  #12 [linux/arm64 2/5] WORKDIR /app
+15:58:43  #12 CACHED
+15:58:43  
+15:58:43  #13 [linux/arm64 3/5] COPY requirements.txt .
+15:58:43  #13 DONE 0.2s
+15:58:43  
+15:58:43  #14 [linux/arm64 4/5] RUN pip install --no-cache-dir -r requirements.txt
+15:59:51  #14 62.05 Collecting psycopg2-binary (from -r requirements.txt (line 1))
+15:59:51  #14 62.56   Downloading psycopg2_binary-2.9.12-cp311-cp311-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl.metadata (4.9 kB)
+15:59:51  #14 64.07 Collecting requests (from -r requirements.txt (line 2))
+15:59:51  #14 64.11   Downloading requests-2.34.0-py3-none-any.whl.metadata (4.8 kB)
+15:59:53  #14 69.27 Collecting charset_normalizer<4,>=2 (from requests->-r requirements.txt (line 2))
+15:59:53  #14 69.33   Downloading charset_normalizer-3.4.7-cp311-cp311-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl.metadata (40 kB)
+15:59:53  #14 69.52      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 40.9/40.9 kB 2.0 MB/s eta 0:00:00
+15:59:54  #14 70.30 Collecting idna<4,>=2.5 (from requests->-r requirements.txt (line 2))
+15:59:54  #14 70.36   Downloading idna-3.14-py3-none-any.whl.metadata (8.0 kB)
+15:59:55  #14 72.32 Collecting urllib3<3,>=1.26 (from requests->-r requirements.txt (line 2))
+15:59:56  #14 72.35   Downloading urllib3-2.7.0-py3-none-any.whl.metadata (6.9 kB)
+15:59:57  #14 73.27 Collecting certifi>=2023.5.7 (from requests->-r requirements.txt (line 2))
+15:59:57  #14 73.32   Downloading certifi-2026.4.22-py3-none-any.whl.metadata (2.5 kB)
+15:59:57  #14 73.77 Downloading psycopg2_binary-2.9.12-cp311-cp311-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl (5.9 MB)
+15:59:58  #14 74.62    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 5.9/5.9 MB 7.4 MB/s eta 0:00:00
+15:59:58  #14 74.66 Downloading requests-2.34.0-py3-none-any.whl (73 kB)
+15:59:58  #14 74.71    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 73.0/73.0 kB 17.2 MB/s eta 0:00:00
+15:59:58  #14 74.77 Downloading certifi-2026.4.22-py3-none-any.whl (135 kB)
+15:59:58  #14 74.82    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 135.7/135.7 kB 10.0 MB/s eta 0:00:00
+15:59:58  #14 74.88 Downloading charset_normalizer-3.4.7-cp311-cp311-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl (206 kB)
+15:59:58  #14 74.95    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 206.4/206.4 kB 9.3 MB/s eta 0:00:00
+15:59:58  #14 75.00 Downloading idna-3.14-py3-none-any.whl (72 kB)
+15:59:58  #14 75.06    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 72.2/72.2 kB 9.8 MB/s eta 0:00:00
+15:59:58  #14 75.10 Downloading urllib3-2.7.0-py3-none-any.whl (131 kB)
+15:59:59  #14 75.17    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 131.1/131.1 kB 10.8 MB/s eta 0:00:00
+16:00:01  #14 77.62 Installing collected packages: urllib3, psycopg2-binary, idna, charset_normalizer, certifi, requests
+16:00:11  #14 86.54 Successfully installed certifi-2026.4.22 charset_normalizer-3.4.7 idna-3.14 psycopg2-binary-2.9.12 requests-2.34.0 urllib3-2.7.0
+16:00:11  #14 86.55 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+16:00:13  #14 89.18 
+16:00:13  #14 89.18 [notice] A new release of pip is available: 24.0 -> 26.1.1
+16:00:13  #14 89.18 [notice] To update, run: pip install --upgrade pip
+16:00:14  #14 DONE 90.7s
+16:00:14  
+16:00:14  #15 [linux/arm64 5/5] COPY . .
+16:00:14  #15 DONE 0.2s
+16:00:14  
+16:00:14  #16 exporting to image
+16:00:14  #16 exporting layers
+16:00:16  #16 exporting layers 2.0s done
+16:00:16  #16 exporting manifest sha256:edcd4506efa0b8ba629a214eef95810c944a1cc121018342f18442ccfeddaddb
+16:00:16  #16 exporting manifest sha256:edcd4506efa0b8ba629a214eef95810c944a1cc121018342f18442ccfeddaddb 0.1s done
+16:00:16  #16 exporting config sha256:de5a7483395f57b689c0e3a389e05816c875d2b59d8d86d9b1cfaf631dc78e23 0.1s done
+16:00:16  #16 exporting attestation manifest sha256:28ae2ea2050f8b5efa6b540f2fb0c9aa767e464e5c0e682ab136a95f6a1f0536 0.2s done
+16:00:17  #16 exporting manifest sha256:62fb925b9f22d4cc01ac44ac8d1e7695c8e1fa847aab2a00e76ed2747a69220a 0.1s done
+16:00:17  #16 exporting config sha256:bb810224ebac96d863d25a206aac64af1d84e85eb524cff9d02ded7d5fa642a8 0.0s done
+16:00:17  #16 exporting attestation manifest sha256:af626a6bdabe07eb3e261ebaa3ea5e1a62ca692abde1a5fbc1be4c10560fc5e8 0.1s done
+16:00:17  #16 exporting manifest list sha256:4c6960da86fd823a69be50c6973e744db49cbbfb20c05c578e4d8347a612eae7
+16:00:17  #16 exporting manifest list sha256:4c6960da86fd823a69be50c6973e744db49cbbfb20c05c578e4d8347a612eae7 0.1s done
+16:00:17  #16 pushing layers
+16:00:18  #16 ...
+16:00:18  
+16:00:18  #17 [auth] pawambust/ai-log-analyzer-worker:pull,push token for registry-1.docker.io
+16:00:18  #17 DONE 0.0s
+16:00:18  
+16:00:18  #16 exporting to image
+16:00:20  #16 ...
+16:00:20  
+16:00:20  #18 [auth] pawambust/ai-log-analyzer-api:pull pawambust/ai-log-analyzer-worker:pull,push token for registry-1.docker.io
+16:00:20  #18 DONE 0.0s
+16:00:20  
+16:00:20  #16 exporting to image
+16:00:35  #16 pushing layers 17.0s done
+16:00:35  #16 pushing manifest for docker.io/pawambust/ai-log-analyzer-worker:0.1@sha256:4c6960da86fd823a69be50c6973e744db49cbbfb20c05c578e4d8347a612eae7
+16:00:40  #16 pushing manifest for docker.io/pawambust/ai-log-analyzer-worker:0.1@sha256:4c6960da86fd823a69be50c6973e744db49cbbfb20c05c578e4d8347a612eae7 6.2s done
+16:00:40  #16 pushing layers
+16:00:42  #16 pushing layers 1.4s done
+16:00:42  #16 pushing manifest for docker.io/pawambust/ai-log-analyzer-worker:latest@sha256:4c6960da86fd823a69be50c6973e744db49cbbfb20c05c578e4d8347a612eae7
+16:00:46  #16 pushing manifest for docker.io/pawambust/ai-log-analyzer-worker:latest@sha256:4c6960da86fd823a69be50c6973e744db49cbbfb20c05c578e4d8347a612eae7 3.5s done
+16:00:46  #16 DONE 30.9s
+16:00:46  + echo Logging out from Docker Hub...
+16:00:46  Logging out from Docker Hub...
+16:00:46  + docker logout
+16:00:46  Removing login credentials for https://index.docker.io/v1/
+16:00:46  + echo Multi-arch images built and pushed successfully!
+16:00:46  Multi-arch images built and pushed successfully!
 [Pipeline] }
 [Pipeline] // stage
 [Pipeline] stage
 [Pipeline] { (Docker Hub Summary)
-Stage "Docker Hub Summary" skipped due to earlier failure(s)
-[Pipeline] getContext
+[Pipeline] echo
+16:00:46  Build Summary
+[Pipeline] sh
+16:00:46  + echo ======================================
+16:00:46  ======================================
+16:00:46  + echo Multi-Arch Images Published to Docker Hub:
+16:00:46  Multi-Arch Images Published to Docker Hub:
+16:00:46  + echo ======================================
+16:00:46  ======================================
+16:00:46  + echo API Service:    docker.io/pawambust/ai-log-analyzer-api:0.1
+16:00:46  API Service:    docker.io/pawambust/ai-log-analyzer-api:0.1
+16:00:46  + echo Worker Service: docker.io/pawambust/ai-log-analyzer-worker:0.1
+16:00:46  Worker Service: docker.io/pawambust/ai-log-analyzer-worker:0.1
+16:00:46  + echo Platforms: linux/amd64, linux/arm64
+16:00:46  Platforms: linux/amd64, linux/arm64
+16:00:46  + echo ======================================
+16:00:46  ======================================
 [Pipeline] }
 [Pipeline] // stage
 [Pipeline] stage
 [Pipeline] { (Cleanup Docker Images)
-Stage "Cleanup Docker Images" skipped due to earlier failure(s)
-[Pipeline] getContext
+[Pipeline] echo
+16:00:46  Cleaning up local Docker images...
+[Pipeline] sh
+16:00:46  + echo Removing local image copies (already pushed to Docker Hub)...
+16:00:46  Removing local image copies (already pushed to Docker Hub)...
+16:00:46  + docker rmi -f docker.io/pawambust/ai-log-analyzer-api:0.1
+16:00:46  + docker rmi -f docker.io/pawambust/ai-log-analyzer-api:latest
+16:00:46  + docker rmi -f docker.io/pawambust/ai-log-analyzer-worker:0.1
+16:00:46  + docker rmi -f docker.io/pawambust/ai-log-analyzer-worker:latest
+16:00:46  + echo Removing dangling images...
+16:00:46  Removing dangling images...
+16:00:46  + docker image prune -f --filter dangling=true
+16:00:46  Deleted Images:
+16:00:46  untagged: sha256:11b08e869eeee04d5866d0ad16451a41017db3f391d23425e7d5279a318ced3b
+16:00:46  deleted: sha256:11b08e869eeee04d5866d0ad16451a41017db3f391d23425e7d5279a318ced3b
+16:00:46  untagged: sha256:156638c5ac759f6857577a4c8d95da8af49a339262012fd3e85156b2dc8e0237
+16:00:46  deleted: sha256:156638c5ac759f6857577a4c8d95da8af49a339262012fd3e85156b2dc8e0237
+16:00:46  
+16:00:46  Total reclaimed space: 21.89MB
+16:00:46  + echo Cleanup completed!
+16:00:46  Cleanup completed!
 [Pipeline] }
 [Pipeline] // stage
 [Pipeline] stage
 [Pipeline] { (Declarative: Post Actions)
 [Pipeline] echo
-Pipeline execution completed.
+16:00:47  Pipeline execution completed.
 [Pipeline] sh
-+ echo Cleaning up any remaining containers...
-Cleaning up any remaining containers...
-+ COMPOSE=docker-compose
-+ 
-+ COMPOSE=docker compose
-+ docker compose down -v
-+ command -v docker-compose
-/usr/bin/docker-compose
-+ echo Removing build artifacts and temporary images...
-Removing build artifacts and temporary images...
-+ docker image prune -f --filter dangling=true
-Total reclaimed space: 0B
+16:00:47  + echo Cleaning up any remaining containers...
+16:00:47  Cleaning up any remaining containers...
+16:00:47  + docker compose down -v
+16:00:47  + echo Removing build artifacts and temporary images...
+16:00:47  Removing build artifacts and temporary images...
+16:00:47  + docker image prune -f --filter dangling=true
+16:00:47  Total reclaimed space: 0B
 [Pipeline] echo
-✗ Pipeline failed!
-[Pipeline] sh
-+ echo === Debugging Information ===
-=== Debugging Information ===
-+ docker ps -a
-CONTAINER ID   IMAGE                 COMMAND                  CREATED       STATUS       PORTS                                                  NAMES
-804425a6b51d   jenkins/jenkins:lts   "/usr/bin/tini -- /u…"   4 hours ago   Up 4 hours   0.0.0.0:8080->8080/tcp, :::8080->8080/tcp, 50000/tcp   jenkins-test
-+ COMPOSE=docker-compose
-+ 
-+ COMPOSE=docker compose
-+ docker compose ps
-+ command -v docker-compose
-/usr/bin/docker-compose
-NAME      IMAGE     COMMAND   SERVICE   CREATED   STATUS    PORTS
+16:00:47  ✓ Pipeline succeeded!
 [Pipeline] }
 [Pipeline] // stage
+[Pipeline] }
+[Pipeline] // timestamps
 [Pipeline] }
 [Pipeline] // withEnv
 [Pipeline] }
@@ -455,5 +870,4 @@ NAME      IMAGE     COMMAND   SERVICE   CREATED   STATUS    PORTS
 [Pipeline] }
 [Pipeline] // node
 [Pipeline] End of Pipeline
-ERROR: script returned exit code 1
-Finished: FAILURE
+Finished: SUCCESS
