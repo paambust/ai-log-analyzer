@@ -32,86 +32,76 @@ pipeline {
         stage('Build Services') {
             steps {
                 echo "Building Docker images from docker-compose..."
-                ansiColor('xterm') {
-                    sh '''
-                        cd ${WORKSPACE_ROOT}
-                        docker compose build --no-cache
-                    '''
-                }
+                sh '''
+                    cd ${WORKSPACE_ROOT}
+                    docker compose build --no-cache
+                '''
             }
         }
 
         stage('Start Services') {
             steps {
                 echo "Starting services with docker-compose..."
-                ansiColor('xterm') {
-                    sh '''
-                        cd ${WORKSPACE_ROOT}
-                        # Ensure the external network exists before bringing up compose
-                        docker network inspect ai_logs_net >/dev/null 2>&1 || docker network create --driver bridge ai_logs_net
-                        docker compose up -d
-                        echo "Waiting for services to be ready..."
-                        sleep 5
-                    '''
-                }
+                sh '''
+                    cd ${WORKSPACE_ROOT}
+                    # Ensure the external network exists before bringing up compose
+                    docker network inspect ai_logs_net >/dev/null 2>&1 || docker network create --driver bridge ai_logs_net
+                    docker compose up -d
+                    echo "Waiting for services to be ready..."
+                    sleep 5
+                '''
             }
         }
 
         stage('Health Checks & Tests') {
             steps {
                 echo "Running health checks and tests..."
-                ansiColor('xterm') {
-                    sh '''
-                        cd ${WORKSPACE_ROOT}
-                        # Prefer the compose-created, project-prefixed network if present,
-                        # otherwise ensure and connect to the named external network.
-                        PREF_NET="ai-logs-analyzer-latest_ai_logs_net"
-                        if docker network inspect "$PREF_NET" >/dev/null 2>&1; then
-                            docker network connect "$PREF_NET" jenkins-lab || true
-                        else
-                            docker network inspect ai_logs_net >/dev/null 2>&1 || docker network create --driver bridge ai_logs_net
-                            docker network connect ai_logs_net jenkins-lab || true
-                        fi
-                        echo "Waiting for services to reach healthy state..."
-                        python3 ${WORKSPACE_ROOT}/scripts/wait_for_services.py
+                sh '''
+                    cd ${WORKSPACE_ROOT}
+                    # Prefer the compose-created, project-prefixed network if present,
+                    # otherwise ensure and connect to the named external network.
+                    PREF_NET="ai-logs-analyzer-latest_ai_logs_net"
+                    if docker network inspect "$PREF_NET" >/dev/null 2>&1; then
+                        docker network connect "$PREF_NET" jenkins-lab || true
+                    else
+                        docker network inspect ai_logs_net >/dev/null 2>&1 || docker network create --driver bridge ai_logs_net
+                        docker network connect ai_logs_net jenkins-lab || true
+                    fi
+                    echo "Waiting for services to reach healthy state..."
+                    python3 ${WORKSPACE_ROOT}/scripts/wait_for_services.py
 
-                        # Run integration tests
-                        echo "Running integration tests..."
-                        API_URL="http://api-service:8000" python3 tests/test_api.py
-                        echo "✓ All tests passed!"
-                    '''
-                }
+                    # Run integration tests
+                    echo "Running integration tests..."
+                    API_URL="http://api-service:8000" python3 tests/test_api.py
+                    echo "✓ All tests passed!"
+                '''
             }
         }
 
         stage('View Logs') {
             steps {
                 echo "Service logs for debugging (if needed)..."
-                ansiColor('xterm') {
-                    sh '''
-                        cd ${WORKSPACE_ROOT}
-                        echo "=== API Service Logs ==="
-                        docker compose logs api || echo "No logs available"
-                        echo ""
-                        echo "=== Worker Service Logs ==="
-                        docker compose logs worker || echo "No logs available"
-                        echo ""
-                        echo "=== Database Logs ==="
-                        docker compose logs postgres || echo "No logs available"
-                    '''
-                }
+                sh '''
+                    cd ${WORKSPACE_ROOT}
+                    echo "=== API Service Logs ==="
+                    docker compose logs api || echo "No logs available"
+                    echo ""
+                    echo "=== Worker Service Logs ==="
+                    docker compose logs worker || echo "No logs available"
+                    echo ""
+                    echo "=== Database Logs ==="
+                    docker compose logs postgres || echo "No logs available"
+                '''
             }
         }
 
         stage('Cleanup Local Services') {
             steps {
                 echo "Shutting down docker-compose services..."
-                ansiColor('xterm') {
-                    sh '''
-                        cd ${WORKSPACE_ROOT}
-                        docker compose down -v || true
-                    '''
-                }
+                sh '''
+                    cd ${WORKSPACE_ROOT}
+                    docker compose down -v || true
+                '''
             }
         }
 
@@ -121,7 +111,6 @@ pipeline {
             }
             steps {
                 echo "Building multi-architecture Docker images (AMD64 + ARM64)..."
-                ansiColor('xterm') {
                 sh '''
                     cd ${WORKSPACE_ROOT}
                     
