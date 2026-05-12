@@ -1,0 +1,22 @@
+FROM jenkins/jenkins:lts
+USER root
+
+RUN apt-get update && \
+    apt-get install -y docker.io docker-compose python3 python3-pip python3-venv && \
+    rm -rf /var/lib/apt/lists/*
+
+# 1. Copy the file from your local machine into the image
+COPY /tests/requirements.txt /tests/requirements.txt
+
+# 2. Install the requirements
+RUN pip3 install --no-cache-dir -r /tests/requirements.txt --break-system-packages
+
+RUN usermod -aG docker jenkins
+USER jenkins
+
+
+#docker exec --user root jenkins-test apt-get update
+#docker exec --user root jenkins-test apt-get install -y docker.io docker-compose
+#docker exec --user root jenkins-test apt-get install -y python3
+#docker exec --user root jenkins-test apt-get install -y python3-pip
+#docker exec --user root jenkins-test pip install -r requirements.txt --break -system-packages

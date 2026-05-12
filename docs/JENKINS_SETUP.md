@@ -7,6 +7,29 @@ This guide helps you set up the AI Log Analyzer pipeline in your Jenkins instanc
 - GitHub account and repository access
 - Docker Hub account with push access (optional, for multi-arch builds)
 
+# Run Jenkins container and to allow host docker engine doing the heavy lifting while building docker images
+```
+~ % docker run -d \
+  --name jenkins-test \
+  -p 8080:8080 \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v jenkins_home_lab:/var/jenkins_home \
+  jenkins/jenkins:lts
+
+docker run -d \
+  --name jenkins-lab \
+  --user root \
+  -p 8080:8080 \
+  -p 50000:50000 \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v $(pwd):/home/ubuntu/ai-log-analyzer \
+  -v jenkins_home_lab:/var/jenkins_home \
+  docker.io/library/pawambust.jenkins:lts-pawan-0.1
+
+docker exec jenkins-test cat /var/jenkins_home/secrets/initialAdminPassword
+3827d4072f5e4d0d862ef4214288034e
+http://localhost:8080
+```
 ## Step 1: Create Jenkins Credentials for Docker Hub
 
 Go to your Jenkins instance and add Docker Hub credentials:
@@ -22,70 +45,265 @@ Go to your Jenkins instance and add Docker Hub credentials:
    - **ID**: `docker-hub-credentials`
    - **Description**: Docker Hub credentials
 6. Click **Create**
+7. Now select it from the dropdown
 
-## Step 2: Create a New Pipeline Job
+---
 
-1. Go to Jenkins Dashboard
-2. Click **+ New Item** or **Create a job**
-3. Job name: `ai-logs-analyzer`
-4. Choose **Pipeline**
-5. Click **OK**
+### PART 4: Save Configuration
+Scroll to **bottom** of page
 
-## Step 3: Configure Pipeline
+Click **Save** button (blue button)
 
-In the job configuration page:
+✓ Pipeline job is now created!
 
-### General Tab
-- Discard old builds: Check this
-  - Days to keep builds: 7
-  - Max # of builds to keep: 20
+---
 
-### Build Triggers
-- **GitHub hook trigger for GITScm polling** (enables webhooks)
+## Running the Pipeline
 
-### Pipeline Tab
-Select **Pipeline script from SCM**:
-- **SCM**: Git
-- **Repository URL**: `https://github.com/yourusername/ai-log-analyzer.git`
-- **Credentials**: Select your GitHub credentials (or use HTTPS)
-- **Branch Specifier**: `*/main`
-- **Script Path**: `Jenkinsfile`
+### Option A: Run Without Parameters (Quick Test)
 
-Click **Save**
+1. In Jenkins, from the job page, click **Build Now** (left sidebar)
+2. A new build starts (listed in **Build History** at bottom-left)
+3. Click the build number (e.g., `#1`) to see details
+4. Click **Console Output** to watch real-time logs
 
-## Step 4: Update Pipeline Parameters
-
-Edit the Jenkinsfile to customize for your environment:
-
-```groovy
-parameters {
-    string(name: 'DOCKER_REGISTRY', defaultValue: 'docker.io', description: 'Docker registry')
-    string(name: 'DOCKER_USERNAME', defaultValue: 'YOUR_DOCKER_HUB_USERNAME', description: 'Docker Hub username')
-    string(name: 'IMAGE_TAG', defaultValue: 'latest', description: 'Docker image tag')
-    booleanParam(name: 'PUSH_IMAGES', defaultValue: false, description: 'Push multi-arch images to Docker Hub')
-}
+Expected output:
+```
+[Pipeline] Start of Pipeline
+[Pipeline] stage
+[Pipeline] { (Checkout)
+[Pipeline] checkout
+ > git init /var/jenkins_home/workspace/ai-logs-analyzer
+ > git fetch...
+[Pipeline] echo
+Commit message: ...
+...
 ```
 
-Replace `YOUR_DOCKER_HUB_USERNAME` with your actual Docker Hub username.
+### Option B: Run With Parameters (Multi-Arch Build)
 
-## Step 5: Test the Pipeline
+This option builds and pushes multi-arch images to Docker Hub.
 
-1. In Jenkins, click **Build with Parameters**
-2. Set parameters:
-   - DOCKER_REGISTRY: `docker.io`
-   - DOCKER_USERNAME: Your Docker Hub username
-   - IMAGE_TAG: `test`
-   - PUSH_IMAGES: Unchecked (for initial test)
-3. Click **Build**
-4. Monitor the build in **Console Output**
+1. From job page, click **Build with Parameters** (left sidebar)
+2. You'll see a form with parameter inputs:
 
-Expected stages:
-- ✓ Checkout
-- ✓ Build Services
-- ✓ Start Services
-- ✓ Health Checks & Tests
-- ✓ View Logs
-- ✓ Cleanup Local Services
+```
+DOCKER_REGISTRY:    docker.io
+DOCKER_USERNAME:    pawambust  (auto-filled from Jenkinsfile default)
+IMAGE_TAG:          latest  (or set to v1.0.0)
+PUSH_IMAGES:        ☐ (checkbox)
+```
+
+**To push images to Docker Hub**, CHECK the `PUSH_IMAGES` box:
+```
+PUSH_IMAGES:        ☑ Checked!
+```
+
+3. Click **Build** button
+4. Pipeline starts with these custom parameters
+
+---
+
+## Monitoring Pipeline Execution
+
+### During Build
+- Click build number (e.g., `#1`)
+- Click **Console Output**
+- Watch logs in real-time
+
+### What Each Stage Does
+
+```
+1. Checkout          → Clones your GitHub repo
+2. Build Services    → Builds Docker images with docker-compose
+3. Start Services    → Spins up API, Worker, PostgreSQL
+4. Health Checks     → Runs integration tests
+5. View Logs         → Captures service logs for debugging
+6. Cleanup Services  → Stops and removes containers
+7. Build Multi-Arch  → (Only if PUSH_IMAGES=true) Builds for ARM64 + AMD64
+8. Docker Hub Summary→ Shows published image URLs
+9. Cleanup Images    → (Only if PUSH_IMAGES=true) Removes local images
+```
+
+### Expected Output
+
+**Successful build (PUSH_IMAGES=false):**
+```
+[Pipeline] stage
+[Pipeline] { (Checkout)
+...
+[Pipeline] { (Health Checks & Tests)
+Installing test dependencies...
+Successfully installed requests==2.32.3 pytest==7.4.4
+Running integration tests...
+✓ API Health Check: Status: 200
+✓ Create Log: Status: 200
+✓ Retrieve Logs: Retrieved 5 logs
+✓ All tests passed!
+...
+Finished: SUCCESS ✓
+```
+
+**Successful build (PUSH_IMAGES=true):**
+```
+...
+[Pipeline] { (Build Multi-Arch Images)
+Authenticating to Docker Hub...
+Docker buildx version ...
+Building API image for amd64,arm64...
+#1 [internal] load build definition from Dockerfile
+...
+#20 exporting to oci image format
+[output_1] digest: sha256:abc123...
+Logging out from Docker Hub...
+...
+======================================
+Multi-Arch Images Published to Docker Hub:
+======================================
+API Service:    docker.io/pawambust/ai-log-analyzer-api:latest
+Worker Service: docker.io/pawambust/ai-log-analyzer-worker:latest
+Platforms: linux/amd64, linux/arm64
+======================================
+...
+Finished: SUCCESS ✓
+```
+
+### Build Status Colors
+- 🔵 **Blue** = Successful
+- 🔴 **Red** = Failed
+- ⚪ **Gray** = In progress or not run
+
+---
+
+## Setting Up GitHub Webhook (Optional - For Auto-Triggers)
+
+This makes the pipeline run automatically when you push to GitHub.
+
+### In Jenkins:
+1. Go to Jenkins job page
+2. Click **Configure** (left sidebar)
+3. Find **Build Triggers** section
+4. Check ✓ **GitHub hook trigger for GITScm polling**
+5. Click **Save**
+
+### In GitHub:
+1. Go to your repository: `https://github.com/paambust/ai-log-analyzer`
+2. Click **Settings** (top-right, gear icon)
+3. Click **Webhooks** (left sidebar)
+4. Click **Add webhook**
+5. Fill the form:
+
+```
+Payload URL:
+  http://your-jenkins-server:8080/github-webhook/
+  
+  Replace "your-jenkins-server" with your Jenkins IP
+  Example: http://192.168.0.5:8080/github-webhook/
+
+Content type:
+  application/json ▼
+
+Events:
+  Select: Just the push event ●
+
+Active:
+  ☑ Check this box
+
+```
+
+6. Click **Add webhook**
+
+**Verify**: Green checkmark ✓ means webhook is working.
+
+Now, every push to GitHub automatically triggers a Jenkins build!
+
+---
+
+## First Build Checklist
+
+Use this checklist for your first build:
+
+- [ ] Visit Jenkins: `http://localhost:8080`
+- [ ] Create Pipeline job named: `ai-logs-analyzer`
+- [ ] Set Repository URL to your GitHub repo
+- [ ] Set Script Path to: `Jenkinsfile`
+- [ ] Save configuration
+- [ ] Click **Build Now**
+- [ ] Wait for build to complete
+- [ ] Check Console Output for any errors
+- [ ] If successful, try **Build with Parameters** with PUSH_IMAGES=true
+- [ ] Check Docker Hub for new images
+- [ ] Verify images are multi-arch: Visit hub.docker.com/r/pawambust/ai-log-analyzer-api
+
+---
+
+## Troubleshooting Your First Build
+
+### Build Fails: "Jenkinsfile not found"
+**Cause**: `Jenkinsfile` not in your repo
+**Solution**:
+```bash
+git add Jenkinsfile
+git commit -m "Add CI/CD pipeline"
+git push origin main
+```
+
+### Build Fails: "docker-compose: command not found"
+**Cause**: Jenkins container doesn't have docker-compose
+**Solution**: Ensure Jenkins has docker-compose installed:
+```bash
+docker exec jenkins-test docker-compose version
+```
+
+### Build Fails: "docker-hub-credentials not found"
+**Cause**: Credential ID mismatch in Jenkinsfile
+**Solution**:
+1. Verify credential ID in Jenkins: `docker-hub-credentials`
+2. Verify Jenkinsfile has same ID: `credentials('docker-hub-credentials')`
+3. IDs are case-sensitive!
+
+### Build Fails: "HTTP Error 403"
+**Cause**: GitHub token expired or has wrong permissions
+**Solution**:
+1. Go to GitHub: Settings → Developer settings → Personal access tokens
+2. Delete old token, create new one with `repo` + `admin:repo_hook` scopes
+3. Update Jenkins credentials with new token
+
+### Build Fails: "Service didn't respond in time"
+**Cause**: Services took too long to start
+**Solution**: Edit Jenkinsfile, in "Start Services" stage:
+```groovy
+sleep 5  ← Change to: sleep 10
+```
+
+### Tests Pass But Docker Push Fails
+**Cause**: Docker Hub token missing or invalid
+**Solution**:
+1. Verify Docker Hub token is valid: https://hub.docker.com/settings/security
+2. Test manually: `docker login -u pawambust` (use token as password)
+3. Update Jenkins credentials with new token
+
+---
+
+## Next Steps
+
+After first successful build:
+
+1. **GitHub Webhook** - Set up auto-triggers on push (see section above)
+2. **Build Notifications** - Add email alerts for failures
+3. **More Tests** - Add additional health checks
+4. **Production Deploy** - Add deployment stage to pipeline
+5. **Build Badges** - Add status badges to GitHub README
+
+---
+
+## Related Documentation
+
+- [Jenkinsfile](../Jenkinsfile) - Pipeline definition
+- [CICD_PIPELINE.md](./CICD_PIPELINE.md) - Detailed pipeline info
+- [DOCKER_CREDENTIALS.md](./DOCKER_CREDENTIALS.md) - Credential management
+- [JENKINS_FAQ.md](./JENKINS_FAQ.md) - Common questions
+- [../jenkins.md](../jenkins.md) - Jenkins container setup
 - (PUSH_IMAGES skipped if not checked)
 
 ## Step 6: Set Up GitHub Webhook (Optional)

@@ -1,0 +1,459 @@
+Started by user Pawan Ambust
+Lightweight checkout support not available, falling back to full checkout.
+Checking out git 
+https://github.com/paambust/ai-log-analyzer into /var/jenkins_home/workspace/ai-logs-analyzer-latest@script/94e55c8cba56af1651e1bc228d3f37507f88221995383b3a1bcf452d9301e248 to read Jenkinsfile
+The recommended git tool is: NONE
+using credential github_token
+ > git rev-parse --resolve-git-dir /var/jenkins_home/workspace/ai-logs-analyzer-latest@script/94e55c8cba56af1651e1bc228d3f37507f88221995383b3a1bcf452d9301e248/.git # timeout=10
+Fetching changes from the remote Git repository
+ > git config remote.origin.url https://github.com/paambust/ai-log-analyzer # timeout=10
+Fetching upstream changes from https://github.com/paambust/ai-log-analyzer
+ > git --version # timeout=10
+ > git --version # 'git version 2.47.3'
+using GIT_ASKPASS to set credentials 
+ > git fetch --tags --force --progress -- https://github.com/paambust/ai-log-analyzer +refs/heads/*:refs/remotes/origin/* # timeout=10
+Seen branch in repository origin/add_llm_intergation
+Seen branch in repository origin/main
+Seen 2 remote branches
+ > git show-ref --tags -d # timeout=10
+Checking out Revision 2a5cace47d872eaf6b3739e577149969b4aa9f18 (origin/add_llm_intergation)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f 2a5cace47d872eaf6b3739e577149969b4aa9f18 # timeout=10
+Commit message: "another commit"
+ > git rev-list --no-walk 9e02305f926eb6a7a4ed8a508adb9a316680ea87 # timeout=10
+[Pipeline] Start of Pipeline
+[Pipeline] node
+Running on Jenkins in /var/jenkins_home/workspace/ai-logs-analyzer-latest
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Declarative: Checkout SCM)
+[Pipeline] checkout
+The recommended git tool is: NONE
+using credential github_token
+ > git rev-parse --resolve-git-dir /var/jenkins_home/workspace/ai-logs-analyzer-latest/.git # timeout=10
+Fetching changes from the remote Git repository
+ > git config remote.origin.url https://github.com/paambust/ai-log-analyzer # timeout=10
+Fetching upstream changes from https://github.com/paambust/ai-log-analyzer
+ > git --version # timeout=10
+ > git --version # 'git version 2.47.3'
+using GIT_ASKPASS to set credentials 
+ > git fetch --tags --force --progress -- https://github.com/paambust/ai-log-analyzer +refs/heads/*:refs/remotes/origin/* # timeout=10
+Seen branch in repository origin/add_llm_intergation
+Seen branch in repository origin/main
+Seen 2 remote branches
+ > git show-ref --tags -d # timeout=10
+Checking out Revision 2a5cace47d872eaf6b3739e577149969b4aa9f18 (origin/add_llm_intergation)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f 2a5cace47d872eaf6b3739e577149969b4aa9f18 # timeout=10
+Commit message: "another commit"
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] withCredentials
+Masking supported pattern matches of $DOCKER_HUB_CREDENTIALS or $DOCKER_HUB_CREDENTIALS_PSW
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Setup)
+[Pipeline] echo
+Checking dependencies...
+[Pipeline] sh
++ set -e
++ echo ✓ Checking Python3...
+✓ Checking Python3...
++ python3 --version
+Python 3.13.5
++ echo ✓ Checking pip...
+✓ Checking pip...
++ pip3 --version
+pip 25.1.1 from /usr/lib/python3/dist-packages/pip (python 3.13)
++ echo ✓ Checking Docker...
+✓ Checking Docker...
++ [ ! -x /usr/bin/docker ]
++ /usr/bin/docker --version
+Docker version 26.1.5+dfsg1, build a72d7cd
++ echo ✓ Checking docker-compose...
+✓ Checking docker-compose...
++ [ -x /usr/local/bin/docker-compose ]
++ [ -x /usr/bin/docker-compose ]
++ /usr/bin/docker-compose --version
+Docker Compose version 2.26.1-4
++ echo ✓ All dependencies verified
+✓ All dependencies verified
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Checkout)
+[Pipeline] echo
+Checking out repository...
+[Pipeline] checkout
+The recommended git tool is: NONE
+using credential github_token
+ > git rev-parse --resolve-git-dir /var/jenkins_home/workspace/ai-logs-analyzer-latest/.git # timeout=10
+Fetching changes from the remote Git repository
+ > git config remote.origin.url https://github.com/paambust/ai-log-analyzer # timeout=10
+Fetching upstream changes from https://github.com/paambust/ai-log-analyzer
+ > git --version # timeout=10
+ > git --version # 'git version 2.47.3'
+using GIT_ASKPASS to set credentials 
+ > git fetch --tags --force --progress -- https://github.com/paambust/ai-log-analyzer +refs/heads/*:refs/remotes/origin/* # timeout=10
+Seen branch in repository origin/add_llm_intergation
+Seen branch in repository origin/main
+Seen 2 remote branches
+ > git show-ref --tags -d # timeout=10
+Checking out Revision 2a5cace47d872eaf6b3739e577149969b4aa9f18 (origin/add_llm_intergation)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f 2a5cace47d872eaf6b3739e577149969b4aa9f18 # timeout=10
+Commit message: "another commit"
+[Pipeline] sh
++ git log -1 --pretty=%B
+another commit
+
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Build Services)
+[Pipeline] echo
+Building Docker images from docker-compose...
+[Pipeline] sh
++ cd /var/jenkins_home/workspace/ai-logs-analyzer-latest
++ 
++ docker-compose build --no-cache
++ command -v docker-compose
+/usr/bin/docker-compose
+time="2026-05-09T15:49:13Z" level=warning msg="/var/jenkins_home/workspace/ai-logs-analyzer-latest/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+#0 building with "default" instance using docker driver
+
+#1 [api internal] load build definition from Dockerfile
+#1 transferring dockerfile: 228B done
+#1 DONE 0.0s
+
+#2 [worker internal] load build definition from Dockerfile
+#2 transferring dockerfile: 189B done
+#2 DONE 0.0s
+
+#3 [worker internal] load metadata for docker.io/library/python:3.11-slim
+#3 DONE 1.5s
+
+#4 [worker internal] load .dockerignore
+#4 transferring context: 2B done
+#4 DONE 0.0s
+
+#5 [api internal] load .dockerignore
+#5 transferring context: 2B done
+#5 DONE 0.1s
+
+#6 [worker internal] load build context
+#6 transferring context: 96B done
+#6 DONE 0.0s
+
+#7 [api internal] load build context
+#7 transferring context: 94B done
+#7 DONE 0.0s
+
+#8 [api 1/5] FROM docker.io/library/python:3.11-slim@sha256:a5b427ace4900267d93db34138e512325c6fa6af84ad5e4ed5f3b36258cc4142
+#8 resolve docker.io/library/python:3.11-slim@sha256:a5b427ace4900267d93db34138e512325c6fa6af84ad5e4ed5f3b36258cc4142 0.0s done
+#8 DONE 0.0s
+
+#9 [api 2/5] WORKDIR /app
+#9 CACHED
+
+#10 [api 3/5] COPY requirements.txt .
+#10 DONE 0.0s
+
+#11 [worker 3/5] COPY requirements.txt .
+#11 DONE 0.0s
+
+#12 [worker 4/5] RUN pip install --no-cache-dir -r requirements.txt
+#12 1.865 Collecting psycopg2-binary (from -r requirements.txt (line 1))
+#12 1.895   Downloading psycopg2_binary-2.9.12-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (4.9 kB)
+#12 1.939 Collecting requests (from -r requirements.txt (line 2))
+#12 1.945   Downloading requests-2.33.1-py3-none-any.whl.metadata (4.8 kB)
+#12 2.094 Collecting charset_normalizer<4,>=2 (from requests->-r requirements.txt (line 2))
+#12 2.102   Downloading charset_normalizer-3.4.7-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (40 kB)
+#12 2.109      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 40.9/40.9 kB 7.8 MB/s eta 0:00:00
+#12 2.129 Collecting idna<4,>=2.5 (from requests->-r requirements.txt (line 2))
+#12 2.136   Downloading idna-3.13-py3-none-any.whl.metadata (8.0 kB)
+#12 2.186 Collecting urllib3<3,>=1.26 (from requests->-r requirements.txt (line 2))
+#12 2.192   Downloading urllib3-2.7.0-py3-none-any.whl.metadata (6.9 kB)
+#12 2.231 Collecting certifi>=2023.5.7 (from requests->-r requirements.txt (line 2))
+#12 2.238   Downloading certifi-2026.4.22-py3-none-any.whl.metadata (2.5 kB)
+#12 2.259 Downloading psycopg2_binary-2.9.12-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (4.3 MB)
+#12 2.644    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.3/4.3 MB 11.2 MB/s eta 0:00:00
+#12 2.648 Downloading requests-2.33.1-py3-none-any.whl (64 kB)
+#12 2.654    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 64.9/64.9 kB 14.0 MB/s eta 0:00:00
+#12 2.658 Downloading certifi-2026.4.22-py3-none-any.whl (135 kB)
+#12 2.670    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 135.7/135.7 kB 13.0 MB/s eta 0:00:00
+#12 2.674 Downloading charset_normalizer-3.4.7-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (214 kB)
+#12 2.694    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 214.1/214.1 kB 11.9 MB/s eta 0:00:00
+#12 2.698 Downloading idna-3.13-py3-none-any.whl (68 kB)
+#12 2.705    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 68.6/68.6 kB 14.1 MB/s eta 0:00:00
+#12 2.708 Downloading urllib3-2.7.0-py3-none-any.whl (131 kB)
+#12 2.723    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 131.1/131.1 kB 10.3 MB/s eta 0:00:00
+#12 2.837 Installing collected packages: urllib3, psycopg2-binary, idna, charset_normalizer, certifi, requests
+#12 3.168 Successfully installed certifi-2026.4.22 charset_normalizer-3.4.7 idna-3.13 psycopg2-binary-2.9.12 requests-2.33.1 urllib3-2.7.0
+#12 3.168 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+#12 3.257 
+#12 3.257 [notice] A new release of pip is available: 24.0 -> 26.1.1
+#12 3.257 [notice] To update, run: pip install --upgrade pip
+#12 DONE 3.6s
+
+#13 [api 4/5] RUN pip install --no-cache-dir -r requirements.txt
+#13 1.883 Collecting fastapi==0.110.0 (from -r requirements.txt (line 1))
+#13 1.914   Downloading fastapi-0.110.0-py3-none-any.whl.metadata (25 kB)
+#13 1.962 Collecting uvicorn==0.29.0 (from -r requirements.txt (line 2))
+#13 1.970   Downloading uvicorn-0.29.0-py3-none-any.whl.metadata (6.3 kB)
+#13 2.063 Collecting psycopg2-binary==2.9.9 (from -r requirements.txt (line 3))
+#13 2.069   Downloading psycopg2_binary-2.9.9-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.4 kB)
+#13 2.358 Collecting pydantic!=1.8,!=1.8.1,!=2.0.0,!=2.0.1,!=2.1.0,<3.0.0,>=1.7.4 (from fastapi==0.110.0->-r requirements.txt (line 1))
+#13 2.367   Downloading pydantic-2.13.4-py3-none-any.whl.metadata (109 kB)
+#13 2.389      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 109.4/109.4 kB 5.3 MB/s eta 0:00:00
+#13 2.465 Collecting starlette<0.37.0,>=0.36.3 (from fastapi==0.110.0->-r requirements.txt (line 1))
+#13 2.471   Downloading starlette-0.36.3-py3-none-any.whl.metadata (5.9 kB)
+#13 2.518 Collecting typing-extensions>=4.8.0 (from fastapi==0.110.0->-r requirements.txt (line 1))
+#13 2.525   Downloading typing_extensions-4.15.0-py3-none-any.whl.metadata (3.3 kB)
+#13 2.589 Collecting click>=7.0 (from uvicorn==0.29.0->-r requirements.txt (line 2))
+#13 2.597   Downloading click-8.3.3-py3-none-any.whl.metadata (2.6 kB)
+#13 2.628 Collecting h11>=0.8 (from uvicorn==0.29.0->-r requirements.txt (line 2))
+#13 2.637   Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+#13 2.708 Collecting annotated-types>=0.6.0 (from pydantic!=1.8,!=1.8.1,!=2.0.0,!=2.0.1,!=2.1.0,<3.0.0,>=1.7.4->fastapi==0.110.0->-r requirements.txt (line 1))
+#13 2.712   Downloading annotated_types-0.7.0-py3-none-any.whl.metadata (15 kB)
+#13 ...
+
+#14 [worker 5/5] COPY . .
+#14 DONE 0.0s
+
+#15 [worker] exporting to image
+#15 exporting layers
+#15 exporting layers 1.2s done
+#15 exporting manifest sha256:4d8f2fb3fd025a9f778ef6141073b5ba17375b319a055c6a69b66a3b33dc865b 0.0s done
+#15 exporting config sha256:6ed6009289246404daa5b96be5d4e8e950d6d6f563dc2a87b9747beb491c21c7 done
+#15 exporting attestation manifest sha256:7f027ebb15547d83e16ebeeaa215eb7fdaf8fab016199bef3031e62db4f19d65 0.0s done
+#15 exporting manifest list sha256:e6c22c7df467d4e8d3d70cc218fc33867127c5aabdb78ae39ad1ff8f7884ede1 done
+#15 naming to docker.io/library/ai-logs-analyzer-latest-worker:latest done
+#15 unpacking to docker.io/library/ai-logs-analyzer-latest-worker:latest
+#15 unpacking to docker.io/library/ai-logs-analyzer-latest-worker:latest 0.3s done
+#15 DONE 1.6s
+
+#13 [api 4/5] RUN pip install --no-cache-dir -r requirements.txt
+#13 3.943 Collecting pydantic-core==2.46.4 (from pydantic!=1.8,!=1.8.1,!=2.0.0,!=2.0.1,!=2.1.0,<3.0.0,>=1.7.4->fastapi==0.110.0->-r requirements.txt (line 1))
+#13 3.947   Downloading pydantic_core-2.46.4-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.6 kB)
+#13 3.967 Collecting typing-inspection>=0.4.2 (from pydantic!=1.8,!=1.8.1,!=2.0.0,!=2.0.1,!=2.1.0,<3.0.0,>=1.7.4->fastapi==0.110.0->-r requirements.txt (line 1))
+#13 3.970   Downloading typing_inspection-0.4.2-py3-none-any.whl.metadata (2.6 kB)
+#13 4.014 Collecting anyio<5,>=3.4.0 (from starlette<0.37.0,>=0.36.3->fastapi==0.110.0->-r requirements.txt (line 1))
+#13 4.020   Downloading anyio-4.13.0-py3-none-any.whl.metadata (4.5 kB)
+#13 4.055 Collecting idna>=2.8 (from anyio<5,>=3.4.0->starlette<0.37.0,>=0.36.3->fastapi==0.110.0->-r requirements.txt (line 1))
+#13 4.062   Downloading idna-3.13-py3-none-any.whl.metadata (8.0 kB)
+#13 4.084 Downloading fastapi-0.110.0-py3-none-any.whl (92 kB)
+#13 4.092    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 92.1/92.1 kB 13.9 MB/s eta 0:00:00
+#13 4.097 Downloading uvicorn-0.29.0-py3-none-any.whl (60 kB)
+#13 4.104    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 60.8/60.8 kB 15.9 MB/s eta 0:00:00
+#13 4.108 Downloading psycopg2_binary-2.9.9-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.0 MB)
+#13 4.366    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.0/3.0 MB 11.8 MB/s eta 0:00:00
+#13 4.370 Downloading click-8.3.3-py3-none-any.whl (110 kB)
+#13 4.380    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 110.5/110.5 kB 12.2 MB/s eta 0:00:00
+#13 4.383 Downloading h11-0.16.0-py3-none-any.whl (37 kB)
+#13 4.390 Downloading pydantic-2.13.4-py3-none-any.whl (472 kB)
+#13 4.432    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 472.3/472.3 kB 11.9 MB/s eta 0:00:00
+#13 4.437 Downloading pydantic_core-2.46.4-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.1 MB)
+#13 4.615    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 11.8 MB/s eta 0:00:00
+#13 4.619 Downloading starlette-0.36.3-py3-none-any.whl (71 kB)
+#13 4.626    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 71.5/71.5 kB 12.8 MB/s eta 0:00:00
+#13 4.630 Downloading typing_extensions-4.15.0-py3-none-any.whl (44 kB)
+#13 4.635    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 44.6/44.6 kB 13.8 MB/s eta 0:00:00
+#13 4.639 Downloading annotated_types-0.7.0-py3-none-any.whl (13 kB)
+#13 4.643 Downloading anyio-4.13.0-py3-none-any.whl (114 kB)
+#13 4.655    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 114.4/114.4 kB 12.5 MB/s eta 0:00:00
+#13 4.658 Downloading typing_inspection-0.4.2-py3-none-any.whl (14 kB)
+#13 4.662 Downloading idna-3.13-py3-none-any.whl (68 kB)
+#13 4.669    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 68.6/68.6 kB 13.1 MB/s eta 0:00:00
+#13 4.896 Installing collected packages: typing-extensions, psycopg2-binary, idna, h11, click, annotated-types, uvicorn, typing-inspection, pydantic-core, anyio, starlette, pydantic, fastapi
+#13 5.932 Successfully installed annotated-types-0.7.0 anyio-4.13.0 click-8.3.3 fastapi-0.110.0 h11-0.16.0 idna-3.13 psycopg2-binary-2.9.9 pydantic-2.13.4 pydantic-core-2.46.4 starlette-0.36.3 typing-extensions-4.15.0 typing-inspection-0.4.2 uvicorn-0.29.0
+#13 5.932 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+#13 6.036 
+#13 6.036 [notice] A new release of pip is available: 24.0 -> 26.1.1
+#13 6.036 [notice] To update, run: pip install --upgrade pip
+#13 DONE 6.6s
+
+#16 [api 5/5] COPY . .
+#16 DONE 0.0s
+
+#17 [api] exporting to image
+#17 exporting layers 1.3s done
+#17 exporting manifest sha256:3ec3453b203cf6c9103ecd1b6e47e3d0d47ed175ffd3c6aba86bf310969db06c done
+#17 exporting config sha256:8583e85cb9467c118c7c5d4b595363aa612dae1d7aaf2297d31395b46f10f06b done
+#17 exporting attestation manifest sha256:87e1be4af319818f24a2086b9c538ebf9a0252ca5e70465cf42974499c33a7e9 0.0s done
+#17 exporting manifest list sha256:c681b7073fd2b87c3a683af99e163ee10682ad7f99a96312207fa9b75ce3b304 done
+#17 naming to docker.io/library/ai-logs-analyzer-latest-api:latest done
+#17 unpacking to docker.io/library/ai-logs-analyzer-latest-api:latest
+#17 unpacking to docker.io/library/ai-logs-analyzer-latest-api:latest 0.4s done
+#17 DONE 1.8s
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Start Services)
+[Pipeline] echo
+Starting services with docker-compose...
+[Pipeline] sh
++ cd /var/jenkins_home/workspace/ai-logs-analyzer-latest
++ 
++ docker-compose up -d
++ command -v docker-compose
+/usr/bin/docker-compose
+time="2026-05-09T15:49:24Z" level=warning msg="/var/jenkins_home/workspace/ai-logs-analyzer-latest/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ Network ai-logs-analyzer-latest_default  Creating
+ Network ai-logs-analyzer-latest_default  Created
+ Volume "ai-logs-analyzer-latest_pgdata"  Creating
+ Volume "ai-logs-analyzer-latest_pgdata"  Created
+ Container postgres  Creating
+ Container postgres  Created
+ Container worker-service  Creating
+ Container api-service  Creating
+ Container worker-service  Created
+ Container api-service  Created
+ Container postgres  Starting
+ Container postgres  Started
+ Container worker-service  Starting
+ Container api-service  Starting
+ Container api-service  Started
+ Container worker-service  Started
++ echo Waiting for services to be ready...
+Waiting for services to be ready...
++ sleep 5
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Health Checks & Tests)
+[Pipeline] echo
+Running health checks and tests...
+[Pipeline] sh
++ cd /var/jenkins_home/workspace/ai-logs-analyzer-latest
++ echo Running integration tests...
+Running integration tests...
++ python3 tests/test_api.py
+
+==================================================
+AI Log Analyzer - Integration Tests
+==================================================
+
+--- Testing API Health ---
+  Attempt 1/10 - Waiting for service...
+  Attempt 2/10 - Waiting for service...
+  Attempt 3/10 - Waiting for service...
+  Attempt 4/10 - Waiting for service...
+  Attempt 5/10 - Waiting for service...
+  Attempt 6/10 - Waiting for service...
+  Attempt 7/10 - Waiting for service...
+  Attempt 8/10 - Waiting for service...
+  Attempt 9/10 - Waiting for service...
+✗ API Health Check: API did not respond within timeout
+  ERROR: API did not respond within timeout
+
+--- Testing Database Connectivity ---
+✗ Database Connectivity: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /logs (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connection: [Errno 111] Connection refused"))
+  ERROR: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /logs (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connection: [Errno 111] Connection refused"))
+
+--- Testing Log Creation ---
+✗ Create Log: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /logs (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connection: [Errno 111] Connection refused"))
+  ERROR: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /logs (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connection: [Errno 111] Connection refused"))
+
+--- Testing Log Retrieval ---
+✗ Retrieve Logs: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /logs?limit=5 (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connection: [Errno 111] Connection refused"))
+  ERROR: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /logs?limit=5 (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connection: [Errno 111] Connection refused"))
+
+--- Testing Different Log Levels ---
+✗ Log Level: DEBUG: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /logs (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connection: [Errno 111] Connection refused"))
+  ERROR: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /logs (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connection: [Errno 111] Connection refused"))
+✗ Log Level: INFO: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /logs (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connection: [Errno 111] Connection refused"))
+  ERROR: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /logs (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connection: [Errno 111] Connection refused"))
+✗ Log Level: WARNING: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /logs (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connection: [Errno 111] Connection refused"))
+  ERROR: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /logs (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connection: [Errno 111] Connection refused"))
+✗ Log Level: ERROR: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /logs (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connection: [Errno 111] Connection refused"))
+  ERROR: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /logs (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connection: [Errno 111] Connection refused"))
+✗ Log Level: CRITICAL: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /logs (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connection: [Errno 111] Connection refused"))
+  ERROR: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /logs (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8000): Failed to establish a new connection: [Errno 111] Connection refused"))
+
+==================================================
+Test Summary
+==================================================
+Tests Passed: 0/5
+✗ Some tests failed!
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (View Logs)
+Stage "View Logs" skipped due to earlier failure(s)
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Cleanup Local Services)
+Stage "Cleanup Local Services" skipped due to earlier failure(s)
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Build Multi-Arch Images)
+Stage "Build Multi-Arch Images" skipped due to earlier failure(s)
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Docker Hub Summary)
+Stage "Docker Hub Summary" skipped due to earlier failure(s)
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Cleanup Docker Images)
+Stage "Cleanup Docker Images" skipped due to earlier failure(s)
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Declarative: Post Actions)
+[Pipeline] echo
+Pipeline execution completed.
+[Pipeline] sh
++ echo Cleaning up any remaining containers...
+Cleaning up any remaining containers...
++ COMPOSE=docker-compose
++ 
++ COMPOSE=docker compose
++ docker compose down -v
++ command -v docker-compose
+/usr/bin/docker-compose
++ echo Removing build artifacts and temporary images...
+Removing build artifacts and temporary images...
++ docker image prune -f --filter dangling=true
+Total reclaimed space: 0B
+[Pipeline] echo
+✗ Pipeline failed!
+[Pipeline] sh
++ echo === Debugging Information ===
+=== Debugging Information ===
++ docker ps -a
+CONTAINER ID   IMAGE                 COMMAND                  CREATED       STATUS       PORTS                                                  NAMES
+804425a6b51d   jenkins/jenkins:lts   "/usr/bin/tini -- /u…"   4 hours ago   Up 4 hours   0.0.0.0:8080->8080/tcp, :::8080->8080/tcp, 50000/tcp   jenkins-test
++ COMPOSE=docker-compose
++ 
++ COMPOSE=docker compose
++ docker compose ps
++ command -v docker-compose
+/usr/bin/docker-compose
+NAME      IMAGE     COMMAND   SERVICE   CREATED   STATUS    PORTS
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // withCredentials
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+ERROR: script returned exit code 1
+Finished: FAILURE

@@ -13,6 +13,13 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d logsdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ai_logs_net
 
   api:
     build: ./api
@@ -20,19 +27,29 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     environment:
       DB_HOST: postgres
       DB_PORT: 5432
       DB_USER: admin
       DB_PASSWORD: admin
       DB_NAME: logsdb
+    healthcheck:
+      test: ["CMD-SHELL", "python3 -c 'import socket; socket.create_connection((\"api-service\", 8000), timeout=2)' || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - ai_logs_net
 
   worker:
     build: ./worker
     container_name: worker-service
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     environment:
       DB_HOST: postgres
       DB_PORT: 5432
@@ -40,6 +57,13 @@ services:
       DB_PASSWORD: admin
       DB_NAME: logsdb
       LLM_API_KEY: your_key_here
+    networks:
+      - ai_logs_net
 
 volumes:
   pgdata:
+
+networks:
+  ai_logs_net:
+    external: true
+    name: ai_logs_net

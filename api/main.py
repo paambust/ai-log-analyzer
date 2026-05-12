@@ -3,8 +3,56 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 import psycopg2
 import os
+from contextlib import contextmanager
+import sys
 
 app = FastAPI()
+
+def init_database():
+    """Initialize database tables - run on startup"""
+    try:
+        conn = psycopg2.connect(
+            host=os.getenv("DB_HOST"),
+            port=int(os.getenv("DB_PORT", 5432)),
+            user=os.getenv("DB_USER"),
+            password=os.getenv("DB_PASSWORD"),
+            dbname=os.getenv("DB_NAME")
+        )
+        cur = conn.cursor()
+        
+        # Create logs table
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS logs (
+                id SERIAL PRIMARY KEY,
+                service VARCHAR(255) NOT NULL,
+                level VARCHAR(50) NOT NULL,
+                message TEXT NOT NULL,
+                analyzed BOOLEAN DEFAULT FALSE,
+                analysis TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        
+        # Create index for faster queries
+        cur.execute("""
+            CREATE INDEX IF NOT EXISTS idx_logs_analyzed 
+            ON logs(analyzed)
+        """)
+        
+        conn.commit()
+        cur.close()
+        conn.close()
+        print("✓ Database tables initialized successfully", file=sys.stderr)
+        return True
+    except Exception as e:
+        print(f"✗ Database initialization failed: {e}", file=sys.stderr)
+        return False
+
+# Initialize database on startup
+@app.on_event("startup")
+async def startup_event():
+    """Initialize database tables on application startup"""
+    init_database()
 
 def get_conn():
     return psycopg2.connect(
@@ -57,20 +105,18 @@ def get_logs(analyzed: bool = None, limit: int = 10):
     cur.close()
     conn.close()
     
-    return {
-        "logs": [
-            {
-                "id": row[0],
-                "service": row[1],
-                "level": row[2],
-                "message": row[3],
-                "analyzed": row[4],
-                "analysis": row[5],
-                "created_at": str(row[6])
-            }
-            for row in rows
-        ]
-    }
+    return [
+        {
+            "id": row[0],
+            "service": row[1],
+            "level": row[2],
+            "message": row[3],
+            "analyzed": row[4],
+            "analysis": row[5],
+            "created_at": str(row[6])
+        }
+        for row in rows
+    ]
 
 
 @app.get("/dashboard", response_class=HTMLResponse)

@@ -13,7 +13,6 @@ pipeline {
         COMPOSE_FILE = "${WORKSPACE}/docker-compose.yml"
         IMAGE_API = "${DOCKER_REGISTRY}/${DOCKER_USERNAME}/ai-log-analyzer-api"
         IMAGE_WORKER = "${DOCKER_REGISTRY}/${DOCKER_USERNAME}/ai-log-analyzer-worker"
-        // Credentials for Docker Hub authentication
         DOCKER_HUB_CREDENTIALS = credentials('docker-hub-credentials')
     }
 
@@ -31,7 +30,7 @@ pipeline {
                 echo "Building Docker images from docker-compose..."
                 sh '''
                     cd ${WORKSPACE_ROOT}
-                    docker-compose build --no-cache
+                    docker compose build --no-cache
                 '''
             }
         }
@@ -41,7 +40,9 @@ pipeline {
                 echo "Starting services with docker-compose..."
                 sh '''
                     cd ${WORKSPACE_ROOT}
-                    docker-compose up -d
+                    # Ensure the external network exists before bringing up compose
+                    docker network inspect ai_logs_net >/dev/null 2>&1 || docker network create --driver bridge ai_logs_net
+                    docker compose up -d
                     echo "Waiting for services to be ready..."
                     sleep 5
                 '''
@@ -53,14 +54,22 @@ pipeline {
                 echo "Running health checks and tests..."
                 sh '''
                     cd ${WORKSPACE_ROOT}
-                    # Install test dependencies
-                    echo "Installing test dependencies..."
-                    pip install -r tests/requirements.txt --quiet
-                    
+                    # Prefer the compose-created, project-prefixed network if present,
+                    # otherwise ensure and connect to the named external network.
+                    PREF_NET="ai-logs-analyzer-latest_ai_logs_net"
+                    if docker network inspect "$PREF_NET" >/dev/null 2>&1; then
+                        docker network connect "$PREF_NET" jenkins-lab || true
+                    else
+                        docker network inspect ai_logs_net >/dev/null 2>&1 || docker network create --driver bridge ai_logs_net
+                        docker network connect ai_logs_net jenkins-lab || true
+                    fi
+                    echo "Waiting for services to reach healthy state..."
+                    python3 ${WORKSPACE_ROOT}/scripts/wait_for_services.py
+
                     # Run integration tests
                     echo "Running integration tests..."
-                    python3 tests/test_api.py
-                    echo "All tests passed!"
+                    API_URL="http://api-service:8000" python3 tests/test_api.py
+                    echo "✓ All tests passed!"
                 '''
             }
         }
@@ -69,14 +78,15 @@ pipeline {
             steps {
                 echo "Service logs for debugging (if needed)..."
                 sh '''
+                    cd ${WORKSPACE_ROOT}
                     echo "=== API Service Logs ==="
-                    docker-compose logs api || echo "No logs available"
+                    docker compose logs api || echo "No logs available"
                     echo ""
                     echo "=== Worker Service Logs ==="
-                    docker-compose logs worker || echo "No logs available"
+                    docker compose logs worker || echo "No logs available"
                     echo ""
                     echo "=== Database Logs ==="
-                    docker-compose logs postgres || echo "No logs available"
+                    docker compose logs postgres || echo "No logs available"
                 '''
             }
         }
@@ -86,7 +96,7 @@ pipeline {
                 echo "Shutting down docker-compose services..."
                 sh '''
                     cd ${WORKSPACE_ROOT}
-                    docker-compose down -v || true
+                    docker compose down -v || true
                 '''
             }
         }
@@ -189,7 +199,11 @@ pipeline {
             echo "Pipeline execution completed."
             sh '''
                 echo "Cleaning up any remaining containers..."
-                docker-compose down -v 2>/dev/null || true
+                COMPOSE="docker-compose"
+                if ! command -v docker-compose &> /dev/null; then
+                    COMPOSE="docker compose"
+                fi
+                $COMPOSE down -v 2>/dev/null || true
                 
                 echo "Removing build artifacts and temporary images..."
                 docker image prune -f --filter "dangling=true" 2>/dev/null || true
@@ -203,7 +217,11 @@ pipeline {
             sh '''
                 echo "=== Debugging Information ==="
                 docker ps -a
-                docker-compose ps 2>/dev/null || true
+                COMPOSE="docker-compose"
+                if ! command -v docker-compose &> /dev/null; then
+                    COMPOSE="docker compose"
+                fi
+                $COMPOSE ps 2>/dev/null || true
             '''
         }
     }
