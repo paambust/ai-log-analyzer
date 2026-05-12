@@ -2,6 +2,19 @@
 import socket
 import time
 import sys
+import logging
+
+
+def setup_logger():
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)s %(name)s:%(lineno)d - %(message)s",
+        datefmt="%Y-%m-%dT%H:%M:%S%z",
+    )
+    return logging.getLogger("wait_for_services")
+
+
+logger = setup_logger()
 
 
 def check_port(host, port, timeout=2):
@@ -16,12 +29,12 @@ def wait_for_service(host, port, name, max_retries=30):
     retry = 0
     while retry < max_retries:
         if check_port(host, port):
-            print(f"✓ {name} is ready on {host}:{port}!")
+            logger.info("✓ %s is ready on %s:%s!", name, host, port)
             return True
         retry += 1
-        print(f"  Attempt {retry}/{max_retries} - Waiting for {name}...")
+        logger.info("Attempt %s/%s - Waiting for %s...", retry, max_retries, name)
         time.sleep(2)
-    print(f"✗ {name} failed to start within timeout")
+    logger.error("✗ %s failed to start within timeout", name)
     return False
 
 
@@ -31,7 +44,7 @@ def main():
     ok &= wait_for_service('postgres', 5432, 'Database service')
     if not ok:
         sys.exit(1)
-    print('✓ All services are ready!')
+    logger.info('✓ All services are ready!')
 
 
 if __name__ == '__main__':
