@@ -65,4 +65,5 @@ volumes:
 
 networks:
   ai_logs_net:
-    driver: bridge
+    external: true
+    name: ai_logs_net

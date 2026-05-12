@@ -40,6 +40,8 @@ pipeline {
                 echo "Starting services with docker-compose..."
                 sh '''
                     cd ${WORKSPACE_ROOT}
+                    # Ensure the external network exists before bringing up compose
+                    docker network inspect ai_logs_net >/dev/null 2>&1 || docker network create --driver bridge ai_logs_net
                     docker compose up -d
                     echo "Waiting for services to be ready..."
                     sleep 5
@@ -52,8 +54,15 @@ pipeline {
                 echo "Running health checks and tests..."
                 sh '''
                     cd ${WORKSPACE_ROOT}
-                    # Connect the Jenkins container to the compose network so it can reach services
-                    docker network connect ai_logs_net jenkins-lab || true
+                    # Prefer the compose-created, project-prefixed network if present,
+                    # otherwise ensure and connect to the named external network.
+                    PREF_NET="ai-logs-analyzer-latest_ai_logs_net"
+                    if docker network inspect "$PREF_NET" >/dev/null 2>&1; then
+                        docker network connect "$PREF_NET" jenkins-lab || true
+                    else
+                        docker network inspect ai_logs_net >/dev/null 2>&1 || docker network create --driver bridge ai_logs_net
+                        docker network connect ai_logs_net jenkins-lab || true
+                    fi
                     echo "Waiting for services to reach healthy state..."
                     python3 ${WORKSPACE_ROOT}/scripts/wait_for_services.py
 
