@@ -150,7 +150,6 @@ pipeline {
 
                     echo "Multi-arch images built and pushed successfully!"
                 '''
-                }
             }
         }
 
