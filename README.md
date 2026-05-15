@@ -47,8 +47,15 @@ This project showcases advanced software engineering skills including:
 - Ensuring high availability and scalability through containerization
 - Implementing comprehensive testing strategies
 
-![System Overview](image-1.png)
-![Architecture Diagram](image.png)
+#### Screenshot: JSON response from `/logs`
+![Logs endpoint screenshot](logs-screenshot.png)
+
+This screenshot shows the `/logs` endpoint response in a browser, including analyzed log entries with: `id`, `service`, `level`, `message`, `analyzed` status, `analysis` text, and `created_at` timestamp. It demonstrates how the API returns structured log insights and AI-generated analysis in JSON format.
+
+#### Screenshot: Visual dashboard for analyzed logs at `/dashboard`
+![Dashboard screenshot](dashboard-screenshot.png)
+
+This screenshot shows the `/dashboard` UI view, where each analyzed log is displayed as a card with service tags, a red error severity badge, the original message, and rich AI analysis content. It highlights the operational monitoring experience and how AI insights are surfaced visually for fast troubleshooting.
 
 ### 🎯 Problem Solved
 
