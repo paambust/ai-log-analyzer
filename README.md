@@ -239,293 +239,59 @@ In complex distributed systems, manual log analysis is time-consuming and error-
 
 ---
 
-## 📚 API Documentation
+## 📚 API Overview
 
-### Base URL
-```
-http://localhost:8000
-```
+The service exposes a small REST API for log ingestion and retrieval:
+- `POST /logs`: submit an application log entry
+- `GET /logs`: retrieve logs and analysis results
+- `GET /dashboard`: view analyzed logs in the web UI
+- `GET /health`: verify service availability
 
-### Endpoints
-
-#### Health Check
-```http
-GET /health
-```
-Returns service health status.
-
-#### Submit Log
-```http
-POST /logs
-Content-Type: application/json
-
-{
-  "service": "auth-service",
-  "level": "ERROR",
-  "message": "Authentication failed for user@example.com"
-}
-```
-
-#### Retrieve Logs
-```http
-GET /logs?analyzed=true&limit=10
-```
-
-#### Get Log Analysis
-```http
-GET /logs/{log_id}
-```
-
-### Example Usage
-```bash
-# Submit a log
-curl -X POST http://localhost:8000/logs \
-  -H "Content-Type: application/json" \
-  -d '{"service":"web-app","level":"WARNING","message":"High memory usage detected"}'
-
-# Get analyzed logs
-curl http://localhost:8000/logs?analyzed=true
-```
-
----
+For full endpoint details and request examples, see `api/main.py`.
 
 ## 🔄 CI/CD Pipeline
 
-This project features a comprehensive Jenkins pipeline for automated testing, building, and deployment, enabling production-ready software delivery practices.
+A Jenkins pipeline automates build, test, and optional multi-architecture Docker image publishing. It supports:
+- parameterized builds
+- Docker buildx for `amd64` + `arm64`
+- webhook-triggered runs
+- automated integration testing
 
-### Pipeline Overview
-
-The CI/CD pipeline is defined in the `Jenkinsfile` and automates the following workflow:
-1. **Checkout**: Source code retrieval and validation from GitHub
-2. **Build Services**: Builds Docker images using docker-compose
-3. **Start Services**: Spins up all services (API, Worker, PostgreSQL)
-4. **Health Checks & Tests**: Runs integration tests against running services
-5. **View Logs**: Captures service logs for debugging and monitoring
-6. **Cleanup**: Stops and removes containers to free resources
-7. **Build Multi-Arch Images**: Creates images for AMD64 and ARM64 architectures
-8. **Push to Docker Hub**: Publishes images (optional, parameterized)
-
-### Pipeline Parameters
-
-The Jenkins pipeline accepts configurable parameters for flexible deployment:
-
-| Parameter | Default | Description |
-|-----------|---------|-------------|
-| `DOCKER_REGISTRY` | `docker.io` | Docker registry URL |
-| `DOCKER_USERNAME` | `pawambust` | Docker Hub username |
-| `IMAGE_TAG` | `latest` | Tag for built images |
-| `PUSH_IMAGES` | `false` | Whether to push multi-arch images to Docker Hub |
-
-### Key Features
-
-- **Multi-architecture Support**: Builds for both AMD64 (Intel/AMD) and ARM64 (ARM, Apple Silicon) platforms
-- **Parameterized Builds**: Configurable registry, tags, and deployment options
-- **Automated Testing**: Integration tests run in isolated containers with health checks
-- **Artifact Management**: Docker images tagged, versioned, and published to registries
-- **Error Handling**: Comprehensive logging and failure notifications
-- **Docker-in-Docker**: Jenkins runs in container while building Docker images
-- **GitHub Integration**: Webhook support for automatic builds on push
-
-### Jenkins Configuration
-
-#### Declarative Pipeline Syntax
-The pipeline uses Jenkins declarative syntax for maintainability:
-```groovy
-pipeline {
-    agent any
-    options {
-        timestamps()
-    }
-    parameters {
-        string(name: 'DOCKER_REGISTRY', defaultValue: 'docker.io')
-        string(name: 'DOCKER_USERNAME', defaultValue: 'pawambust')
-        string(name: 'IMAGE_TAG', defaultValue: 'latest')
-        booleanParam(name: 'PUSH_IMAGES', defaultValue: false)
-    }
-    // ... stages defined
-}
-```
-
-#### Docker Buildx for Multi-Arch
-Multi-architecture builds use Docker buildx with QEMU emulation:
-```bash
-# Build and push multi-arch images
-docker buildx build \
-  --platform linux/amd64,linux/arm64 \
-  --tag ${DOCKER_REGISTRY}/${DOCKER_USERNAME}/ai-log-analyzer-api:${IMAGE_TAG} \
-  --push \
-  ./api
-```
-
-#### Credential Management
-Jenkins securely manages credentials for Docker Hub and GitHub:
-- Docker Hub: Username/password for image pushes
-- GitHub: Personal access tokens for repository access
-- Webhooks: Automatic trigger on repository changes
-
-### Usage Examples
-
-#### Option 1: Local Testing Build
-```bash
-# In Jenkins UI: Build Now
-# Pipeline runs with default parameters
-# No images pushed to Docker Hub
-```
-
-#### Option 2: Production Build with Push
-```bash
-# In Jenkins UI: Build with Parameters
-# Set PUSH_IMAGES=true
-# Images published to: docker.io/pawambust/ai-log-analyzer-api:latest
-```
-
-#### Option 3: Manual Multi-Arch Build
-```bash
-# Without Jenkins pipeline
-chmod +x build-multiarch.sh
-./build-multiarch.sh
-```
-
-### Testing Integration
-
-The pipeline includes comprehensive testing:
-- **API Health Checks**: Validates service availability
-- **Database Connectivity**: Ensures PostgreSQL connection
-- **Log Ingestion**: Tests POST /logs endpoint
-- **Log Retrieval**: Tests GET /logs endpoint
-- **Concurrent Requests**: Multiple API calls simulation
-
-### Performance Optimizations
-
-- **Layer Caching**: Docker layer caching for faster builds
-- **Parallel Execution**: Multiple test stages for efficiency
-- **Resource Management**: Automatic cleanup prevents resource leaks
-- **Build Triggers**: Only builds on relevant changes (webhooks)
-
-### Troubleshooting Pipeline Issues
-
-Common issues and solutions:
-- **Health Check Failures**: Check service logs with `docker-compose logs`
-- **Multi-Arch Build Errors**: Verify buildx and QEMU installation
-- **Push Failures**: Confirm Docker Hub credentials and permissions
-- **Port Conflicts**: Ensure ports 8000, 5432 are available
-
-### GitHub Webhook Setup
-
-For automatic builds on push:
-1. Jenkins: Configure GitHub webhook URL
-2. GitHub: Add webhook in repository settings
-3. Payload URL: `http://jenkins-server:8080/github-webhook/`
-4. Events: Push events to trigger builds
-
----
+See `docs/CICD_PIPELINE.md` and `docs/JENKINS_SETUP.md` for full implementation details.
 
 ## 🧪 Testing
 
-Comprehensive test suite ensuring reliability and performance.
-
-### Test Coverage
-- **API Health Checks**: Service availability validation
-- **Database Connectivity**: Connection and query testing
-- **Log Ingestion**: End-to-end log submission workflow
-- **Worker Processing**: AI analysis pipeline verification
-- **Integration Tests**: Full system interaction testing
-
-### Running Tests
+Run the integration suite:
 ```bash
-# From project root
 cd tests
 pip install -r requirements.txt
 python test_api.py
 ```
 
-### Test Results
-- Automated execution in CI/CD pipeline
-- Detailed logging for debugging
-- Health check integration with Docker Compose
-
----
+Key coverage includes API health, log ingestion, retrieval, and worker processing.
 
 ## 💻 Development Guide
 
-### Project Structure
+Project structure:
 ```
 ai-log-analyzer/
-├── api/                 # FastAPI service
-│   ├── main.py         # API endpoints and database setup
-│   ├── requirements.txt # Python dependencies
-│   └── Dockerfile      # API container definition
-├── worker/             # AI analysis worker
-│   ├── worker.py       # Log processing logic
-│   ├── requirements.txt
-│   └── Dockerfile
-├── tests/              # Test suite
-│   ├── test_api.py     # Integration tests
-│   └── requirements.txt
-├── scripts/            # Utility scripts
-├── docs/               # Documentation
-└── docker-compose.yml  # Service orchestration
+├── api/         # FastAPI service
+├── worker/      # AI analysis worker
+├── tests/       # Integration tests
+├── docs/        # Documentation and setup guides
+└── docker-compose.yml
 ```
 
-### Environment Variables
-```bash
-# Database
-DB_HOST=postgres
-DB_PORT=5432
-DB_USER=admin
-DB_PASSWORD=admin
-DB_NAME=logsdb
-
-# AI Service
-LLM_ENDPOINT=http://ollama:11434/api/generate
-
-# API
-API_URL=http://localhost:8000
-```
-
-### Code Quality
-- Type hints and documentation
-- Error handling and logging
-- Modular, maintainable code structure
-- Database connection pooling
-
----
+Local environment variables are defined in `docker-compose.yml` and can be overridden via `.env`.
 
 ## 🔧 Troubleshooting
 
-### Common Issues
+Common issues are covered in `docs/CICD_PIPELINE.md` and `api/main.py`.
 
-**Database Connection Failed**
-- Ensure PostgreSQL container is running: `docker-compose ps`
-- Check environment variables in docker-compose.yml
-- Verify network connectivity: `docker network ls`
-
-**API Service Unhealthy**
-- Check logs: `docker-compose logs api`
-- Verify dependencies: `docker exec api pip list`
-- Test manually: `curl http://localhost:8000/health`
-
-**Worker Not Processing Logs**
-- Confirm Ollama is running: `curl http://localhost:11434/api/tags`
-- Check worker logs: `docker-compose logs worker`
-- Verify database permissions
-
-**Build Failures**
-- Clear Docker cache: `docker system prune -a`
-- Check Jenkins logs for detailed errors
-- Ensure all dependencies are available
-
-### Logs and Monitoring
-```bash
-# View all service logs
-docker-compose logs -f
-
-# View specific service
-docker-compose logs -f api
-
-# Database logs
-docker-compose logs postgres
-```
+- Database connection failures
+- API startup errors
+- Worker analysis failures
+- Jenkins build issues
 
 ---
 
@@ -535,26 +301,23 @@ Contributions are welcome! This project demonstrates collaborative development p
 
 ### Development Workflow
 1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
+2. Create a feature branch: `git checkout -b feature/your-feature`
 3. Make changes and add tests
 4. Run tests: `python tests/test_api.py`
-5. Commit changes: `git commit -m 'Add amazing feature'`
-6. Push to branch: `git push origin feature/amazing-feature`
-7. Open a Pull Request
+5. Commit and push your branch
+6. Open a Pull Request
 
 ### Code Standards
-- Follow PEP 8 Python style guide
-- Add type hints for function parameters
-- Include docstrings for public functions
-- Write tests for new features
+- Follow PEP 8
+- Add type hints for public code
+- Include docstrings where appropriate
+- Write tests for new functionality
 - Update documentation as needed
 
 ---
 
 ## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
+Not Applicable
 ---
 
 ## 👤 Author
@@ -562,15 +325,15 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **Pawan Kumar Ambust**  
 *Full-Stack Developer | DevOps Engineer | AI Enthusiast*
 
-- LinkedIn: [Your LinkedIn Profile](https://www.linkedin.com/in/pawan-a-86887930/)
-- GitHub: [Your GitHub](https://github.com/paambust)
+- LinkedIn: [pawan-a-86887930](https://www.linkedin.com/in/pawan-a-86887930/)
+- GitHub: [paambust](https://github.com/paambust)
 - Email: ambust.pawan@gmail.com
 
-*This project showcases expertise in modern software development, from concept to production deployment. Built with passion for solving real-world problems through technology.*
+*This project showcases expertise in modern software development, from concept to production deployment.*
 
 ---
 
-*Built with ❤️ using cutting-edge technologies for intelligent log analysis.*
+
 ```
 
 ---
