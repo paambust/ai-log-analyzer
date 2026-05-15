@@ -284,27 +284,132 @@ curl http://localhost:8000/logs?analyzed=true
 
 ## 🔄 CI/CD Pipeline
 
-This project features a comprehensive Jenkins pipeline for automated testing, building, and deployment.
+This project features a comprehensive Jenkins pipeline for automated testing, building, and deployment, enabling production-ready software delivery practices.
 
-### Pipeline Stages
-1. **Checkout**: Source code retrieval and validation
-2. **Build**: Multi-architecture Docker image creation
-3. **Test**: Automated integration testing
-4. **Deploy**: Image push to Docker Hub
-5. **Cleanup**: Resource management
+### Pipeline Overview
+
+The CI/CD pipeline is defined in the `Jenkinsfile` and automates the following workflow:
+1. **Checkout**: Source code retrieval and validation from GitHub
+2. **Build Services**: Builds Docker images using docker-compose
+3. **Start Services**: Spins up all services (API, Worker, PostgreSQL)
+4. **Health Checks & Tests**: Runs integration tests against running services
+5. **View Logs**: Captures service logs for debugging and monitoring
+6. **Cleanup**: Stops and removes containers to free resources
+7. **Build Multi-Arch Images**: Creates images for AMD64 and ARM64 architectures
+8. **Push to Docker Hub**: Publishes images (optional, parameterized)
+
+### Pipeline Parameters
+
+The Jenkins pipeline accepts configurable parameters for flexible deployment:
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `DOCKER_REGISTRY` | `docker.io` | Docker registry URL |
+| `DOCKER_USERNAME` | `pawambust` | Docker Hub username |
+| `IMAGE_TAG` | `latest` | Tag for built images |
+| `PUSH_IMAGES` | `false` | Whether to push multi-arch images to Docker Hub |
 
 ### Key Features
-- **Multi-architecture Support**: Builds for both AMD64 and ARM64 platforms
+
+- **Multi-architecture Support**: Builds for both AMD64 (Intel/AMD) and ARM64 (ARM, Apple Silicon) platforms
 - **Parameterized Builds**: Configurable registry, tags, and deployment options
-- **Automated Testing**: Integration tests run in isolated containers
-- **Artifact Management**: Docker images tagged and versioned
+- **Automated Testing**: Integration tests run in isolated containers with health checks
+- **Artifact Management**: Docker images tagged, versioned, and published to registries
 - **Error Handling**: Comprehensive logging and failure notifications
+- **Docker-in-Docker**: Jenkins runs in container while building Docker images
+- **GitHub Integration**: Webhook support for automatic builds on push
 
 ### Jenkins Configuration
-- Declarative pipeline syntax
-- Docker-in-Docker support
-- Credential management for registries
-- Parallel execution for efficiency
+
+#### Declarative Pipeline Syntax
+The pipeline uses Jenkins declarative syntax for maintainability:
+```groovy
+pipeline {
+    agent any
+    options {
+        timestamps()
+    }
+    parameters {
+        string(name: 'DOCKER_REGISTRY', defaultValue: 'docker.io')
+        string(name: 'DOCKER_USERNAME', defaultValue: 'pawambust')
+        string(name: 'IMAGE_TAG', defaultValue: 'latest')
+        booleanParam(name: 'PUSH_IMAGES', defaultValue: false)
+    }
+    // ... stages defined
+}
+```
+
+#### Docker Buildx for Multi-Arch
+Multi-architecture builds use Docker buildx with QEMU emulation:
+```bash
+# Build and push multi-arch images
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  --tag ${DOCKER_REGISTRY}/${DOCKER_USERNAME}/ai-log-analyzer-api:${IMAGE_TAG} \
+  --push \
+  ./api
+```
+
+#### Credential Management
+Jenkins securely manages credentials for Docker Hub and GitHub:
+- Docker Hub: Username/password for image pushes
+- GitHub: Personal access tokens for repository access
+- Webhooks: Automatic trigger on repository changes
+
+### Usage Examples
+
+#### Option 1: Local Testing Build
+```bash
+# In Jenkins UI: Build Now
+# Pipeline runs with default parameters
+# No images pushed to Docker Hub
+```
+
+#### Option 2: Production Build with Push
+```bash
+# In Jenkins UI: Build with Parameters
+# Set PUSH_IMAGES=true
+# Images published to: docker.io/pawambust/ai-log-analyzer-api:latest
+```
+
+#### Option 3: Manual Multi-Arch Build
+```bash
+# Without Jenkins pipeline
+chmod +x build-multiarch.sh
+./build-multiarch.sh
+```
+
+### Testing Integration
+
+The pipeline includes comprehensive testing:
+- **API Health Checks**: Validates service availability
+- **Database Connectivity**: Ensures PostgreSQL connection
+- **Log Ingestion**: Tests POST /logs endpoint
+- **Log Retrieval**: Tests GET /logs endpoint
+- **Concurrent Requests**: Multiple API calls simulation
+
+### Performance Optimizations
+
+- **Layer Caching**: Docker layer caching for faster builds
+- **Parallel Execution**: Multiple test stages for efficiency
+- **Resource Management**: Automatic cleanup prevents resource leaks
+- **Build Triggers**: Only builds on relevant changes (webhooks)
+
+### Troubleshooting Pipeline Issues
+
+Common issues and solutions:
+- **Health Check Failures**: Check service logs with `docker-compose logs`
+- **Multi-Arch Build Errors**: Verify buildx and QEMU installation
+- **Push Failures**: Confirm Docker Hub credentials and permissions
+- **Port Conflicts**: Ensure ports 8000, 5432 are available
+
+### GitHub Webhook Setup
+
+For automatic builds on push:
+1. Jenkins: Configure GitHub webhook URL
+2. GitHub: Add webhook in repository settings
+3. Payload URL: `http://jenkins-server:8080/github-webhook/`
+4. Events: Push events to trigger builds
 
 ---
 
@@ -447,12 +552,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👤 Author
 
-**Your Name**  
+**Pawan Kumar Ambust**  
 *Full-Stack Developer | DevOps Engineer | AI Enthusiast*
 
-- LinkedIn: [Your LinkedIn Profile](https://linkedin.com/in/yourprofile)
-- GitHub: [Your GitHub](https://github.com/yourusername)
-- Email: your.email@example.com
+- LinkedIn: [Your LinkedIn Profile](https://www.linkedin.com/in/pawan-a-86887930/)
+- GitHub: [Your GitHub](https://github.com/paambust)
+- Email: ambust.pawan@gmail.com
 
 *This project showcases expertise in modern software development, from concept to production deployment. Built with passion for solving real-world problems through technology.*
 
@@ -1431,6 +1536,14 @@ The current setup uses:
 - [ ] Multi-user support with role-based access
 - [ ] Custom prompts per service
 - [ ] Analysis caching to reduce LLM calls
+- [ ] **Kubernetes Integration with Loki Stack**
+  - [ ] Deploy AI Log Analyzer on Kubernetes cluster
+  - [ ] Integrate with Loki for centralized log aggregation from all pods
+  - [ ] Configure Promtail to collect logs from Kubernetes pods
+  - [ ] Expose Loki API to AI Log Analyzer for automated log ingestion
+  - [ ] Implement Kubernetes-native health checks and scaling
+  - [ ] Add Grafana dashboards for log analysis visualization
+  - [ ] Support for multi-tenant log isolation in Kubernetes namespaces
 
 ---
 
