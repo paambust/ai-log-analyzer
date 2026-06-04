@@ -359,7 +359,7 @@ You can now monitor your cluster, query logs, and set up alerts for any anomalie
 
 Prometheus cannot directly write metrics into a GCS bucket and have Grafana query them efficiently. A bucket is object storage, not a time-series database.
 
-Option : Prometheus + Thanos + GCS
+### Option I : Prometheus + Thanos + GCS
 
 This is the most common Kubernetes-native solution.
 
@@ -397,7 +397,9 @@ This is the most common Kubernetes-native solution.
 │ Grafana     │
 └─────────────┘
 ```
-Option 2: Prometheus → Grafana Mimir
+### Option 2: Prometheus → Grafana Mimir
+
+```
 
 Grafana's modern solution.
 
@@ -408,6 +410,7 @@ Grafana Mimir
 GCS Bucket
     ↓
 Grafana
+```
 
 Mimir stores blocks in GCS and indexes them.
 
@@ -423,10 +426,11 @@ More operationally complex
 
 Used by many SaaS monitoring platforms.
 
-Option 3: Prometheus → VictoriaMetrics
+### Option 3: Prometheus → VictoriaMetrics
 
 A favorite among many DevOps teams.
 
+```
 Prometheus
      ↓ remote_write
 VictoriaMetrics
@@ -434,6 +438,7 @@ VictoriaMetrics
 GCS/S3 compatible storage
      ↓
 Grafana
+```
 
 Pros:
 
@@ -445,37 +450,9 @@ Many Kubernetes operators choose VictoriaMetrics today because it is easier to r
 
 What I would recommend for your background
 
-Since you're already working with:
-
-Kubernetes
-Terraform
-GCP
-Observability
-
-I'd choose:
-
-Small/Medium Environment
-Prometheus
-     ↓
-VictoriaMetrics
-     ↓
-Grafana
-
-Simplest operationally.
-
-Enterprise / Multi-cluster
-Prometheus
-     ↓
-Thanos
-     ↓
-GCS
-     ↓
-Grafana
-
-This is what you'll commonly encounter in larger organizations.
 
 
-## High Cardinality
+### High Cardinality
 
 ```
 #Flask/Python example
@@ -534,9 +511,10 @@ def get_users():
         endpoint="/api/users"          # fixed route = few values
     ).inc()
 ```
-Yes! Exactly Right 🎯
+
 Each unique combination of label values creates its own time series in TSDB.
 
+```
 Visual Example
 metric name + label combination = 1 time series in TSDB
 # 1 metric, 3 labels = many combinations
@@ -570,10 +548,12 @@ Each time series uses approximately 3KB of RAM in Prometheus
 200 series       × 3KB = 600KB      ✅ fine
 1,000,000 series × 3KB = 3GB RAM    ⚠️ heavy
 200,000,000      × 3KB = 600GB RAM  💥 OOMKilled
+```
 
 ![alt text](image-7.png)
 
 Where Labels Are Defined — Full Picture
+```
 ┌─────────────────────────────────────────────┐
 │           WHERE LABELS COME FROM            │
 │                                             │
@@ -589,12 +569,8 @@ Where Labels Are Defined — Full Picture
 │  4. THANOS EXTERNAL LABELS                  │
 │     cluster, region, environment            │
 └─────────────────────────────────────────────┘
+```
 
-Key Takeaway
-
-The developer instrumenting the application is responsible for choosing good labels — this is why monitoring best practices should be part of your development guidelines, not an afterthought.
-
-Bad labeling decisions made at code level can bring down Prometheus in production! 🚨Sonnet 4.6 Low
 
 ## 📌 Contributing
 
