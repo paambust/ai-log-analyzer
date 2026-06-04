@@ -355,6 +355,246 @@ This setup provides a complete monitoring solution for your Kubernetes cluster u
 You can now monitor your cluster, query logs, and set up alerts for any anomalies.
 
 ---
+## Longer period data storage
+
+Prometheus cannot directly write metrics into a GCS bucket and have Grafana query them efficiently. A bucket is object storage, not a time-series database.
+
+Option : Prometheus + Thanos + GCS
+
+This is the most common Kubernetes-native solution.
+
+```
+┌─────────────┐
+│ Prometheus  │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│ Thanos      │
+│ Sidecar     │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│ GCS Bucket  │
+└─────────────┘
+
+       ▲
+       │
+┌─────────────┐
+│ Thanos      │
+│ Store GW    │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│ Thanos      │
+│ Query       │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│ Grafana     │
+└─────────────┘
+```
+Option 2: Prometheus → Grafana Mimir
+
+Grafana's modern solution.
+
+Prometheus
+    ↓ remote_write
+Grafana Mimir
+    ↓
+GCS Bucket
+    ↓
+Grafana
+
+Mimir stores blocks in GCS and indexes them.
+
+Pros:
+
+Massive scale
+Multi-tenant
+Grafana Labs supported
+
+Cons:
+
+More operationally complex
+
+Used by many SaaS monitoring platforms.
+
+Option 3: Prometheus → VictoriaMetrics
+
+A favorite among many DevOps teams.
+
+Prometheus
+     ↓ remote_write
+VictoriaMetrics
+     ↓
+GCS/S3 compatible storage
+     ↓
+Grafana
+
+Pros:
+
+Much simpler than Thanos
+Excellent compression
+Lower resource usage
+
+Many Kubernetes operators choose VictoriaMetrics today because it is easier to run than a full Thanos stack.
+
+What I would recommend for your background
+
+Since you're already working with:
+
+Kubernetes
+Terraform
+GCP
+Observability
+
+I'd choose:
+
+Small/Medium Environment
+Prometheus
+     ↓
+VictoriaMetrics
+     ↓
+Grafana
+
+Simplest operationally.
+
+Enterprise / Multi-cluster
+Prometheus
+     ↓
+Thanos
+     ↓
+GCS
+     ↓
+Grafana
+
+This is what you'll commonly encounter in larger organizations.
+
+
+## High Cardinality
+
+```
+#Flask/Python example
+
+from flask import Flask, request
+from prometheus_client import Counter
+
+http_requests_total = Counter(
+    'http_requests_total',
+    'Total HTTP requests',
+    ['method', 'client_ip']  # label names defined here
+)
+
+@app.route('/api/users')
+def get_users():
+    client_ip = request.remote_addr  # ← gets IP from request
+    
+    http_requests_total.labels(
+        method=request.method,
+        client_ip=client_ip        # ❌ bad — passing IP as label
+    ).inc()
+    
+    return jsonify(users)
+```
+
+```
+# WRONG
+http_requests_total.labels(
+    client_ip="192.168.1.105"    # ❌ unique per client!
+).inc()
+
+# Creates:
+http_requests_total{client_ip="192.168.1.1"}
+http_requests_total{client_ip="192.168.1.2"}
+http_requests_total{client_ip="10.0.0.45"}
+# ... millions of IPs 💥
+
+Fix:
+python# Use region/zone instead
+http_requests_total.labels(
+    region="us-east"    # ✅ only a few regions
+).inc()
+
+
+http_requests_total = Counter(
+    'http_requests_total',
+    'Total HTTP requests',
+    ['method', 'status', 'endpoint']   # ✅ low cardinality labels
+)
+
+@app.route('/api/users')
+def get_users():
+    http_requests_total.labels(
+        method=request.method,         # GET/POST/PUT = 5 values
+        status="200",                  # 200/400/500 = few values
+        endpoint="/api/users"          # fixed route = few values
+    ).inc()
+```
+Yes! Exactly Right 🎯
+Each unique combination of label values creates its own time series in TSDB.
+
+Visual Example
+metric name + label combination = 1 time series in TSDB
+# 1 metric, 3 labels = many combinations
+
+http_requests_total{method="GET",  status="200", endpoint="/api/users"}  → 1 TSDB series
+http_requests_total{method="GET",  status="404", endpoint="/api/users"}  → 1 TSDB series
+http_requests_total{method="POST", status="200", endpoint="/api/users"}  → 1 TSDB series
+http_requests_total{method="POST", status="500", endpoint="/api/users"}  → 1 TSDB series
+http_requests_total{method="GET",  status="200", endpoint="/api/orders"} → 1 TSDB series
+...
+
+Cardinality Math
+Total Series = all possible combinations of label values
+
+method   = GET, POST, PUT, DELETE        → 4 values
+status   = 200, 201, 400, 404, 500       → 5 values
+endpoint = /api/users, /api/orders, ...  → 10 values
+
+Total = 4 × 5 × 10 = 200 series ✅ fine
+
+
+# Now add bad label:
+user_id  = 1 million users               → 1,000,000 values
+
+Total = 4 × 5 × 10 × 1,000,000 = 200,000,000 series 💥
+
+
+Memory Impact
+Each time series uses approximately 3KB of RAM in Prometheus
+
+200 series       × 3KB = 600KB      ✅ fine
+1,000,000 series × 3KB = 3GB RAM    ⚠️ heavy
+200,000,000      × 3KB = 600GB RAM  💥 OOMKilled
+
+![alt text](image-7.png)
+
+Where Labels Are Defined — Full Picture
+┌─────────────────────────────────────────────┐
+│           WHERE LABELS COME FROM            │
+│                                             │
+│  1. APPLICATION CODE ← you control this     │
+│     method, status, endpoint, error_type    │
+│                                             │
+│  2. PROMETHEUS CONFIG ← auto added          │
+│     job, instance                           │
+│                                             │
+│  3. KUBERNETES (kube-state-metrics)         │
+│     pod, namespace, node, container         │
+│                                             │
+│  4. THANOS EXTERNAL LABELS                  │
+│     cluster, region, environment            │
+└─────────────────────────────────────────────┘
+
+Key Takeaway
+
+The developer instrumenting the application is responsible for choosing good labels — this is why monitoring best practices should be part of your development guidelines, not an afterthought.
+
+Bad labeling decisions made at code level can bring down Prometheus in production! 🚨Sonnet 4.6 Low
 
 ## 📌 Contributing
 
